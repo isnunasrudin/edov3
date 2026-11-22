@@ -1,0 +1,479 @@
+@import 'tailwindcss';
+
+@source '../js/**/*.vue';
+@source '../views/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   DESIGN TOKENS — EDO v2
+   ============================================================ */
+:root {
+    color-scheme: light;
+    --canvas: 248 250 252;
+    --surface: 255 255 255;
+    --elevated: 241 245 249;
+    --line: 226 232 240;
+    --ink: 15 23 42;
+    --muted: 71 85 105;
+    --brand: 37 99 235;
+    --brand-deep: 29 78 216;
+    --brand-soft: 239 246 255;
+    --brand-fg: 255 255 255;
+    --accent: 180 83 9;
+    --accent-soft: 254 243 199;
+    --success: 4 120 87;
+    --success-soft: 209 250 229;
+    --info: 14 116 144;
+    --info-soft: 207 250 254;
+    --violet: 109 40 217;
+    --violet-soft: 237 233 254;
+    --danger: 185 28 28;
+    --danger-soft: 254 226 226;
+    --ring: 37 99 235;
+}
+
+.dark {
+    color-scheme: dark;
+    --canvas: 9 9 11;
+    --surface: 24 24 27;
+    --elevated: 39 39 42;
+    --line: 39 39 42;
+    --ink: 255 255 255;
+    --muted: 161 161 170;
+    --brand: 96 165 250;
+    --brand-deep: 147 197 253;
+    --brand-soft: 23 37 84;
+    --brand-fg: 2 6 23;
+    --accent: 234 179 8;
+    --accent-soft: 66 32 6;
+    --success: 74 222 128;
+    --success-soft: 6 78 59;
+    --info: 56 189 248;
+    --info-soft: 8 47 73;
+    --violet: 192 132 252;
+    --violet-soft: 59 7 100;
+    --danger: 248 113 113;
+    --danger-soft: 69 10 10;
+    --ring: 96 165 250;
+}
+
+@theme inline {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --color-canvas: rgb(var(--canvas));
+    --color-surface: rgb(var(--surface));
+    --color-elevated: rgb(var(--elevated));
+    --color-line: rgb(var(--line));
+    --color-ink: rgb(var(--ink));
+    --color-muted: rgb(var(--muted));
+
+    --color-brand: rgb(var(--brand));
+    --color-brand-deep: rgb(var(--brand-deep));
+    --color-brand-soft: rgb(var(--brand-soft));
+    --color-brand-fg: rgb(var(--brand-fg));
+
+    --color-accent: rgb(var(--accent));
+    --color-accent-soft: rgb(var(--accent-soft));
+    --color-success: rgb(var(--success));
+    --color-success-soft: rgb(var(--success-soft));
+    --color-info: rgb(var(--info));
+    --color-info-soft: rgb(var(--info-soft));
+    --color-violet: rgb(var(--violet));
+    --color-violet-soft: rgb(var(--violet-soft));
+    --color-danger: rgb(var(--danger));
+    --color-danger-soft: rgb(var(--danger-soft));
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+    html {
+        scrollbar-gutter: stable;
+        background-color: rgb(var(--canvas));
+        --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+        --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body {
+        background: transparent;
+        text-rendering: optimizeLegibility;
+        font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    }
+
+    /* Grain fixed — tidak ikut scroll */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        pointer-events: none;
+        opacity: 0.022;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+    }
+
+    .dark body::after {
+        opacity: 0.04;
+        mix-blend-mode: screen;
+    }
+
+    ::selection {
+        background: rgb(var(--brand) / 0.2);
+    }
+
+    :focus-visible {
+        outline: 2px solid rgb(var(--ring));
+        outline-offset: 2px;
+        border-radius: 0.5rem;
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(var(--line)) transparent;
+    }
+
+    *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: rgb(var(--line));
+        border-radius: 999px;
+        border: 3px solid transparent;
+        background-clip: content-box;
+    }
+}
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+@layer components {
+    .skip-link {
+        position: fixed;
+        left: 1rem;
+        top: 1rem;
+        z-index: 100;
+        transform: translateY(-200%);
+        transition: transform 300ms var(--ease-spring);
+        background: rgb(var(--brand));
+        color: rgb(var(--brand-fg));
+        padding: 0.625rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .skip-link:focus {
+        transform: translateY(0);
+    }
+
+    .no-scroll {
+        overflow: hidden;
+    }
+
+    .card {
+        @apply relative rounded-[1.5rem] bg-surface;
+        box-shadow:
+            0 0 0 1px rgb(var(--line) / 0.9),
+            0 0 0 4px rgb(var(--elevated) / 0.92),
+            inset 0 1px 0 rgb(255 255 255 / 0.62),
+            0 34px 64px -44px rgb(15 23 42 / 0.38);
+        transition:
+            transform 620ms var(--ease-spring),
+            box-shadow 620ms var(--ease-spring);
+    }
+
+    .btn-primary {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-brand-fg transition duration-500 hover:bg-brand-deep active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.2),
+            0 16px 30px -18px rgb(var(--brand) / 0.75);
+    }
+
+    .btn-secondary {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-line/70 bg-surface px-5 py-2.5 text-sm font-medium text-ink transition duration-500 hover:bg-elevated active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-ghost {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-muted transition duration-500 hover:bg-elevated hover:text-ink active:scale-[0.98];
+    }
+
+    .btn-sm {
+        @apply gap-1.5 rounded-full px-3 py-1.5 text-xs;
+    }
+
+    .btn-trail {
+        @apply grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-fg/15 transition duration-500;
+    }
+
+    .icon-btn {
+        @apply inline-grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-line/70 bg-surface text-muted transition duration-500 hover:bg-elevated hover:text-ink active:scale-95;
+    }
+
+    .icon-btn-sm {
+        @apply inline-grid h-9 w-9 cursor-pointer place-items-center rounded-full text-muted transition duration-500 hover:bg-elevated hover:text-ink active:scale-95;
+    }
+
+    .input {
+        @apply h-10 w-full rounded-xl border border-line/70 bg-surface px-3.5 text-sm text-ink placeholder:text-muted transition duration-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20;
+    }
+
+    .select {
+        @apply h-10 w-full cursor-pointer appearance-none rounded-xl border border-line/70 bg-surface pl-3.5 pr-9 text-sm text-ink transition duration-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px;
+    }
+
+    .label {
+        @apply mb-1.5 block text-xs font-semibold text-ink;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold;
+    }
+
+    .th {
+        @apply whitespace-nowrap px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted;
+    }
+
+    .td {
+        @apply px-4 py-3 align-middle text-sm text-ink;
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted transition duration-500 hover:bg-elevated hover:text-ink;
+    }
+
+    .nav-link.is-active {
+        @apply bg-brand-soft font-semibold text-brand;
+    }
+
+    .chip {
+        @apply inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line/70 px-3 py-1.5 text-xs font-semibold text-muted transition duration-500 hover:bg-elevated hover:text-ink;
+    }
+
+    .chip.is-active {
+        @apply border-brand/30 bg-brand-soft text-brand;
+    }
+
+    .stat-tile {
+        @apply rounded-[1.25rem] border border-line/60 bg-elevated/70 px-4 py-3;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5);
+    }
+}
+
+/* ============================================================
+   ELEVATION / STATE OVERRIDES
+   ============================================================ */
+.card-lift:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 0 0 1px rgb(var(--line) / 0.9),
+        0 0 0 4px rgb(var(--elevated) / 0.92),
+        inset 0 1px 0 rgb(255 255 255 / 0.62),
+        0 44px 80px -40px rgb(15 23 42 / 0.44);
+}
+
+.dark .card {
+    box-shadow:
+        0 0 0 1px rgb(var(--line) / 0.9),
+        0 0 0 4px rgb(var(--elevated) / 0.6),
+        inset 0 1px 0 rgb(255 255 255 / 0.05),
+        0 34px 64px -44px rgb(0 0 0 / 0.85);
+}
+
+.dark .card-lift:hover {
+    box-shadow:
+        0 0 0 1px rgb(var(--line)),
+        0 0 0 4px rgb(var(--elevated) / 0.75),
+        inset 0 1px 0 rgb(255 255 255 / 0.07),
+        0 44px 84px -40px rgb(0 0 0 / 0.95);
+}
+
+.btn-primary:hover .btn-trail {
+    transform: translate(2px, -1px) scale(1.06);
+}
+
+.btn-primary:hover:not(:active) {
+    transform: translateY(-1px);
+}
+
+/* Indikator kiri nav aktif */
+.nav-link {
+    position: relative;
+}
+
+.nav-link.is-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 58%;
+    width: 3px;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    background: rgb(var(--brand));
+}
+
+/* Tabel */
+.tbl {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(26px) scale(0.985);
+    transition:
+        opacity 900ms var(--ease-out-quint),
+        transform 900ms var(--ease-out-quint);
+}
+
+[data-reveal].is-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* ============================================================
+   MOTION
+   ============================================================ */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: fadeUp 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-pop-in {
+    animation: popIn 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Transisi halaman Inertia */
+.page-enter-active,
+.page-leave-active {
+    transition:
+        opacity 260ms var(--ease-out-quint),
+        transform 260ms var(--ease-out-quint);
+}
+
+.page-enter-from {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+/* Modal */
+.modal-enter-active,
+.modal-leave-active {
+    transition: opacity 240ms var(--ease-out-quint);
+}
+
+.modal-enter-from,
+.modal-leave-to {
+    opacity: 0;
+}
+
+.modal-enter-active .modal-panel,
+.modal-leave-active .modal-panel {
+    transition:
+        opacity 240ms var(--ease-out-quint),
+        transform 240ms var(--ease-spring);
+}
+
+.modal-enter-from .modal-panel,
+.modal-leave-to .modal-panel {
+    opacity: 0;
+    transform: scale(0.97) translateY(10px);
+}
+
+.modal-panel {
+    transition:
+        opacity 240ms var(--ease-out-quint),
+        transform 240ms var(--ease-spring);
+}
+
+/* Toast */
+.toast-enter-active,
+.toast-leave-active {
+    transition:
+        opacity 240ms var(--ease-spring),
+        transform 240ms var(--ease-spring);
+}
+
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+}
+
+.toast-move {
+    transition: transform 240ms var(--ease-spring);
+}
+
+/* Semua kontrol memakai kurva, bukan linear/ease-in-out */
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-sm,
+.icon-btn,
+.icon-btn-sm,
+.nav-link,
+.chip,
+.input,
+.select,
+.card,
+.btn-trail {
+    transition-timing-function: var(--ease-spring);
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+    }
+}

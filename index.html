@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+<!-- Design system & aturan visual: lihat DESIGN.md -->
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EDO v2 · Ringkasan Organisasi — PC IPNU &amp; IPPNU Trenggalek</title>
+  <meta name="description" content="EDO v2 — dashboard manajemen organisasi PC IPNU & IPPNU Kabupaten Trenggalek: persuratan, data anggota, dan kaderisasi." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563EB'/%3E%3Ccircle cx='32' cy='30' r='14' fill='none' stroke='white' stroke-width='7'/%3E%3Cpath d='M26 44h12l-6 12z' fill='white'/%3E%3C/svg%3E" />
+
+  <!-- Cegah flash tema gelap -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('nu-theme');
+        var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) { /* noop */ }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            canvas: 'rgb(var(--canvas) / <alpha-value>)',
+            surface: 'rgb(var(--surface) / <alpha-value>)',
+            elevated: 'rgb(var(--elevated) / <alpha-value>)',
+            line: 'rgb(var(--line) / <alpha-value>)',
+            ink: 'rgb(var(--ink) / <alpha-value>)',
+            muted: 'rgb(var(--muted) / <alpha-value>)',
+            brand: {
+              DEFAULT: 'rgb(var(--brand) / <alpha-value>)',
+              deep: 'rgb(var(--brand-deep) / <alpha-value>)',
+              soft: 'rgb(var(--brand-soft) / <alpha-value>)',
+              fg: 'rgb(var(--brand-fg) / <alpha-value>)'
+            },
+            accent: {
+              DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+              soft: 'rgb(var(--accent-soft) / <alpha-value>)'
+            },
+            danger: {
+              DEFAULT: 'rgb(var(--danger) / <alpha-value>)',
+              soft: 'rgb(var(--danger-soft) / <alpha-value>)'
+            },
+            info: {
+              DEFAULT: 'rgb(var(--info) / <alpha-value>)',
+              soft: 'rgb(var(--info-soft) / <alpha-value>)'
+            },
+            success: {
+              DEFAULT: 'rgb(var(--success) / <alpha-value>)',
+              soft: 'rgb(var(--success-soft) / <alpha-value>)'
+            },
+            violet: {
+              DEFAULT: 'rgb(var(--violet) / <alpha-value>)',
+              soft: 'rgb(var(--violet-soft) / <alpha-value>)'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
+          },
+          boxShadow: {
+            card: '0 1px 2px rgb(15 23 42 / 0.05)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Ikon: Phosphor (satu keluarga ikon, bukan emoji) -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: 248 250 252;
+      --surface: 255 255 255;
+      --elevated: 241 245 249;
+      --line: 226 232 240;
+      --ink: 15 23 42;
+      --muted: 71 85 105;
+      --brand: 37 99 235;
+      --brand-deep: 29 78 216;
+      --brand-soft: 239 246 255;
+      --brand-fg: 255 255 255;
+      --accent: 180 83 9;
+      --accent-soft: 254 243 199;
+      --success: 4 120 87;
+      --success-soft: 209 250 229;
+      --info: 14 116 144;
+      --info-soft: 207 250 254;
+      --violet: 109 40 217;
+      --violet-soft: 237 233 254;
+      --danger: 185 28 28;
+      --danger-soft: 254 226 226;
+      --ring: 37 99 235;
+    }
+    .dark {
+      color-scheme: dark;
+      --canvas: 9 9 11;
+      --surface: 24 24 27;
+      --elevated: 39 39 42;
+      --line: 39 39 42;
+      --ink: 255 255 255;
+      --muted: 161 161 170;
+      --brand: 96 165 250;
+      --brand-deep: 147 197 253;
+      --brand-soft: 23 37 84;
+      --brand-fg: 2 6 23;
+      --accent: 234 179 8;
+      --accent-soft: 66 32 6;
+      --success: 74 222 128;
+      --success-soft: 6 78 59;
+      --info: 56 189 248;
+      --info-soft: 8 47 73;
+      --violet: 192 132 252;
+      --violet-soft: 59 7 100;
+      --danger: 248 113 113;
+      --danger-soft: 69 10 10;
+      --ring: 96 165 250;
+    }
+
+    html {
+      scrollbar-gutter: stable;
+      background-color: rgb(var(--canvas));
+      --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+      --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body {
+      background: transparent;
+      text-rendering: optimizeLegibility;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+    /* Grain halus: fixed, tidak ikut scroll */
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 40;
+      pointer-events: none;
+      opacity: 0.022;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+    .dark body::after { opacity: 0.04; mix-blend-mode: screen; }
+
+    /* Scroll reveal */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(26px) scale(0.985);
+      transition: opacity 900ms var(--ease-out-quint), transform 900ms var(--ease-out-quint);
+    }
+    [data-reveal].is-in { opacity: 1; transform: translateY(0) scale(1); }
+    ::selection { background: rgb(var(--brand) / 0.2); }
+
+    /* Fokus keyboard selalu terlihat */
+    :focus-visible {
+      outline: 2px solid rgb(var(--ring));
+      outline-offset: 2px;
+      border-radius: 0.5rem;
+    }
+
+    .skip-link {
+      position: fixed; left: 1rem; top: 1rem; z-index: 100;
+      transform: translateY(-200%);
+      transition: transform 300ms var(--ease-spring);
+      background: rgb(var(--brand)); color: rgb(var(--brand-fg));
+      padding: 0.625rem 1rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+        /* Double-bezel: tray tipis di luar kartu */
+    .card-lift:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 0 0 1px rgb(var(--line) / 0.9),
+        0 0 0 4px rgb(var(--elevated) / 0.92),
+        inset 0 1px 0 rgb(255 255 255 / 0.62),
+        0 44px 80px -40px rgb(15 23 42 / 0.44);
+    }
+    .dark .card {
+      box-shadow:
+        0 0 0 1px rgb(var(--line) / 0.9),
+        0 0 0 4px rgb(var(--elevated) / 0.6),
+        inset 0 1px 0 rgb(255 255 255 / 0.05),
+        0 34px 64px -44px rgb(0 0 0 / 0.85);
+    }
+    .dark .card-lift:hover {
+      box-shadow:
+        0 0 0 1px rgb(var(--line)),
+        0 0 0 4px rgb(var(--elevated) / 0.75),
+        inset 0 1px 0 rgb(255 255 255 / 0.07),
+        0 44px 84px -40px rgb(0 0 0 / 0.95);
+    }
+    /* Semua transisi memakai kurva, bukan linear/ease-in-out */
+    .btn-primary, .btn-secondary, .btn-ghost, .btn-sm, .icon-btn, .icon-btn-sm,
+    .nav-link, .chip, .input, .select, .card, .btn-trail {
+      transition-timing-function: var(--ease-spring);
+    }
+
+    /* Scrollbar halus */
+    * { scrollbar-width: thin; scrollbar-color: rgb(var(--line)) transparent; }
+    *::-webkit-scrollbar { width: 10px; height: 10px; }
+    *::-webkit-scrollbar-thumb { background: rgb(var(--line)); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.97) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-fade-up { animation: fadeUp 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .animate-pop-in { animation: popIn 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .toast { animation: toastIn 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+    /* Navigasi sidebar */
+    .nav-link { position: relative; }
+    .nav-link.is-active::before {
+      content: ""; position: absolute; left: 0; top: 50%;
+      height: 58%; width: 3px; transform: translateY(-50%);
+      border-radius: 999px; background: rgb(var(--brand));
+    }
+
+    /* Tabel */
+    .tbl { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card {
+        @apply relative rounded-[1.5rem] bg-surface;
+        box-shadow:
+          0 0 0 1px rgb(var(--line) / 0.9),
+          0 0 0 4px rgb(var(--elevated) / 0.92),
+          inset 0 1px 0 rgb(255 255 255 / 0.62),
+          0 34px 64px -44px rgb(15 23 42 / 0.38);
+        transition: transform 620ms var(--ease-spring), box-shadow 620ms var(--ease-spring);
+      }
+
+      .btn-primary {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-brand-fg transition duration-500 hover:bg-brand-deep active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 16px 30px -18px rgb(var(--brand) / 0.75);
+      }
+      .btn-secondary {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-line/70 bg-surface px-5 py-2.5 text-sm font-medium text-ink transition duration-500 hover:bg-elevated active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+      }
+      .btn-ghost {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-muted transition duration-500 hover:bg-elevated hover:text-ink active:scale-[0.98];
+      }
+      .btn-sm { @apply gap-1.5 rounded-full px-3 py-1.5 text-xs; }
+      .btn-trail {
+        @apply grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-fg/15 transition duration-500;
+      }
+      .btn-primary:hover .btn-trail { transform: translate(2px, -1px) scale(1.06); }
+      .btn-primary:hover:not(:active) { transform: translateY(-1px); }
+
+      .icon-btn {
+        @apply inline-grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-line/70 bg-surface text-muted transition duration-500 hover:bg-elevated hover:text-ink active:scale-95;
+      }
+      .icon-btn-sm {
+        @apply inline-grid h-9 w-9 cursor-pointer place-items-center rounded-full text-muted transition duration-500 hover:bg-elevated hover:text-ink active:scale-95;
+      }
+
+      .input {
+        @apply h-10 w-full rounded-xl border border-line/70 bg-surface px-3.5 text-sm text-ink placeholder:text-muted transition duration-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20;
+      }
+      .select {
+        @apply h-10 w-full cursor-pointer appearance-none rounded-xl border border-line/70 bg-surface pl-3.5 pr-9 text-sm text-ink transition duration-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px;
+      }
+      .label { @apply mb-1.5 block text-xs font-semibold text-ink; }
+
+      .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold; }
+      .th { @apply whitespace-nowrap px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted; }
+      .td { @apply px-4 py-3 align-middle text-sm text-ink; }
+
+      .nav-link {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted transition duration-500 hover:bg-elevated hover:text-ink;
+      }
+      .nav-link.is-active { @apply bg-brand-soft font-semibold text-brand; }
+
+      .chip {
+        @apply inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line/70 px-3 py-1.5 text-xs font-semibold text-muted transition duration-500 hover:bg-elevated hover:text-ink;
+      }
+      .chip.is-active { @apply border-brand/30 bg-brand-soft text-brand; }
+
+      .stat-tile {
+        @apply rounded-[1.25rem] border border-line/60 bg-elevated/70 px-4 py-3;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5);
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-dvh font-sans text-ink antialiased">
+  <div class="pointer-events-none fixed inset-0 -z-10" aria-hidden="true"
+    style="background-image: radial-gradient(56rem 38rem at 92% -12%, rgb(var(--brand) / 0.10), transparent 62%), radial-gradient(48rem 36rem at -8% 108%, rgb(var(--info) / 0.09), transparent 60%);"></div>
+  <a href="#main" class="skip-link">Lewati ke konten utama</a>
+
+  <!-- ============================ SIDEBAR ============================ -->
+  <div id="overlay" class="fixed inset-0 z-40 hidden bg-slate-950/50 backdrop-blur-sm lg:hidden" aria-hidden="true"></div>
+
+  <aside id="sidebar"
+    class="fixed inset-y-0 left-0 z-50 flex w-[16.5rem] -translate-x-full flex-col overflow-hidden border-r border-line/70 bg-surface/90 backdrop-blur-2xl transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] lg:inset-y-3 lg:left-3 lg:rounded-[1.75rem] lg:border lg:shadow-[0_36px_80px_-48px_rgba(15,23,42,0.6)] lg:translate-x-0"
+    aria-label="Navigasi samping">
+
+    <div class="flex items-center gap-3 px-5 py-5">
+      <img src="data:image/png;base64,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" alt="" aria-hidden="true" class="h-10 w-auto shrink-0" />
+      <div class="min-w-0">
+        <p class="text-[15px] font-extrabold leading-none tracking-tight text-ink">EDO<span class="ml-0.5 align-super text-[9px] font-bold text-brand">v2</span></p>
+        <p class="mt-1 truncate text-[10px] text-muted">PC IPNU &amp; IPPNU Trenggalek</p>
+      </div>
+      <button id="close-drawer" class="icon-btn-sm ml-auto lg:hidden" aria-label="Tutup menu">
+        <i class="ph-light ph-x text-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 pb-4" aria-label="Navigasi utama">
+      <p class="px-3 pb-2 pt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Utama</p>
+      <a href="#ringkasan" data-route="ringkasan" class="nav-link">
+        <i class="ph-light ph-squares-four text-lg" aria-hidden="true"></i>
+        <span>Ringkasan</span>
+      </a>
+
+      <p class="px-3 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Manajemen</p>
+      <a href="#persuratan" data-route="persuratan" class="nav-link">
+        <i class="ph-light ph-envelope-simple text-lg" aria-hidden="true"></i>
+        <span>Persuratan</span>
+        <span id="nav-surat-badge" class="ml-auto rounded-md bg-elevated px-1.5 py-0.5 font-mono text-[10px] font-bold text-muted">–</span>
+      </a>
+      <a href="#anggota" data-route="anggota" class="nav-link">
+        <i class="ph-light ph-users-three text-lg" aria-hidden="true"></i>
+        <span>Data Anggota</span>
+        <span id="nav-anggota-badge" class="ml-auto rounded-md bg-elevated px-1.5 py-0.5 font-mono text-[10px] font-bold text-muted">–</span>
+      </a>
+      <a href="#kaderisasi" data-route="kaderisasi" class="nav-link">
+        <i class="ph-light ph-graduation-cap text-lg" aria-hidden="true"></i>
+        <span>Kaderisasi</span>
+      </a>
+    </nav>
+
+    <div class="border-t border-line p-3">
+      <div class="rounded-2xl border border-line/60 bg-elevated/70 p-4">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Sekretariat</p>
+        <p class="mt-2 text-xs leading-relaxed text-ink/80">Jl. Raya Trenggalek No. 12<br />Kab. Trenggalek, Jawa Timur</p>
+        <p class="mt-3 flex items-center gap-1.5 text-[11px] text-muted">
+          <i class="ph-light ph-clock" aria-hidden="true"></i> Senin–Sabtu · 08.00–16.00
+        </p>
+      </div>
+      <p class="mt-3 px-1 text-[10px] text-muted">Periode 2025–2027 · EDO v2</p>
+    </div>
+  </aside>
+
+  <!-- ============================ KONTEN ============================ -->
+  <div class="min-w-0 lg:pl-[18rem]">
+    <!-- Header -->
+    <header class="sticky top-0 z-30 px-3 pt-3 sm:px-5 lg:px-6">
+      <div class="flex h-16 items-center gap-2 rounded-full border border-line/70 bg-surface/75 px-2.5 shadow-[0_20px_44px_-30px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:gap-3 sm:px-3.5">
+        <button id="menu-btn" class="icon-btn shrink-0 lg:hidden" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="sidebar">
+          <i class="ph-light ph-list text-lg" aria-hidden="true"></i>
+        </button>
+
+        <div class="hidden min-w-0 md:block">
+          <p class="truncate text-[11px] text-muted">EDO v2 · PC IPNU &amp; IPPNU Trenggalek</p>
+          <h1 id="page-title" class="truncate text-sm font-bold">Ringkasan Organisasi</h1>
+        </div>
+
+        <!-- Pencarian global -->
+        <div class="relative ml-auto w-full min-w-0 max-w-[15rem] flex-1 sm:max-w-xs md:ml-6">
+          <label for="global-search" class="sr-only">Cari surat atau anggota</label>
+          <i class="ph-light ph-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base text-muted" aria-hidden="true"></i>
+          <input id="global-search" type="search" autocomplete="off"
+            class="h-10 w-full rounded-full border border-line/70 bg-elevated/80 pl-9 pr-11 text-sm text-ink placeholder:text-muted transition duration-500 focus:border-brand focus:bg-surface focus:outline-none focus:ring-2 focus:ring-brand/20"
+            placeholder="Cari surat, anggota…" aria-expanded="false" aria-controls="search-results" />
+          <kbd class="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 select-none items-center rounded-md border border-line bg-surface px-1.5 py-0.5 font-mono text-[10px] text-muted sm:inline-flex">/</kbd>
+          <div id="search-results" class="absolute left-0 right-0 top-12 z-50 hidden overflow-hidden rounded-2xl border border-line/70 bg-surface p-1.5 shadow-[0_30px_70px_-34px_rgba(15,23,42,0.5)]" aria-live="polite"></div>
+        </div>
+
+        <button id="theme-toggle" class="icon-btn shrink-0" aria-label="Ganti tema terang atau gelap" aria-pressed="false">
+          <i class="ph-light ph-moon text-lg dark:hidden" aria-hidden="true"></i>
+          <i class="ph-light ph-sun hidden text-lg dark:block" aria-hidden="true"></i>
+        </button>
+
+        <!-- Notifikasi -->
+        <div class="relative shrink-0">
+          <button id="notif-btn" class="icon-btn relative" aria-label="Notifikasi, 3 belum dibaca" aria-expanded="false" aria-controls="notif-menu">
+            <i class="ph-light ph-bell text-lg" aria-hidden="true"></i>
+            <span id="notif-dot" class="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-danger ring-2 ring-surface"></span>
+          </button>
+          <div id="notif-menu" class="absolute right-0 top-12 z-50 hidden w-80 overflow-hidden rounded-2xl border border-line/70 bg-surface shadow-[0_30px_70px_-34px_rgba(15,23,42,0.5)]">
+            <div class="flex items-center justify-between border-b border-line px-4 py-3">
+              <p class="text-sm font-bold">Notifikasi</p>
+              <button id="notif-read" class="cursor-pointer text-xs font-semibold text-brand hover:underline">Tandai dibaca</button>
+            </div>
+            <ul class="max-h-80 divide-y divide-line overflow-y-auto">
+              <li class="flex gap-3 px-4 py-3 hover:bg-elevated">
+                <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand"><i class="ph-light ph-envelope-simple" aria-hidden="true"></i></span>
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold leading-snug">2 surat menunggu disposisi</p>
+                  <p class="mt-0.5 text-[11px] text-muted">Sekretariat · 10 menit lalu</p>
+                </div>
+              </li>
+              <li class="flex gap-3 px-4 py-3 hover:bg-elevated">
+                <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent"><i class="ph-light ph-graduation-cap" aria-hidden="true"></i></span>
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold leading-snug">Pendaftaran MAKESTA XXIV dibuka</p>
+                  <p class="mt-0.5 text-[11px] text-muted">Kaderisasi · 1 jam lalu</p>
+                </div>
+              </li>
+              <li class="flex gap-3 px-4 py-3 hover:bg-elevated">
+                <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-info-soft text-info"><i class="ph-light ph-user-plus" aria-hidden="true"></i></span>
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold leading-snug">12 anggota baru terverifikasi</p>
+                  <p class="mt-0.5 text-[11px] text-muted">Keanggotaan · Kemarin</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Profil -->
+        <div class="relative shrink-0">
+          <button id="user-btn" class="flex cursor-pointer items-center gap-2 rounded-full border border-line/70 bg-surface py-1.5 pl-1.5 pr-2 transition duration-500 hover:bg-elevated" aria-label="Menu akun: Ahmad Fauzan" aria-expanded="false" aria-controls="user-menu">
+            <span class="grid h-7 w-7 place-items-center rounded-full bg-brand-soft font-mono text-[10px] font-bold text-brand">AF</span>
+            <span class="hidden text-left sm:block">
+              <span class="block text-xs font-bold leading-tight">Ahmad Fauzan</span>
+              <span class="block text-[10px] text-muted">Sekretaris</span>
+            </span>
+            <i class="ph-light ph-caret-down hidden text-xs text-muted sm:block" aria-hidden="true"></i>
+          </button>
+          <div id="user-menu" class="absolute right-0 top-12 z-50 hidden w-56 overflow-hidden rounded-2xl border border-line/70 bg-surface p-1.5 shadow-[0_30px_70px_-34px_rgba(15,23,42,0.5)]">
+            <div class="border-b border-line px-3 py-2.5">
+              <p class="text-sm font-bold">Ahmad Fauzan Hidayat</p>
+              <p class="text-[11px] text-muted">Sekretaris PC IPNU Trenggalek</p>
+            </div>
+            <button class="mt-1 flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-elevated" data-toast="Menu Profil masih dalam prototipe.">
+              <i class="ph-light ph-user text-base text-muted" aria-hidden="true"></i> Profil saya
+            </button>
+            <button class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-elevated" data-toast="Menu Pengaturan masih dalam prototipe.">
+              <i class="ph-light ph-gear text-base text-muted" aria-hidden="true"></i> Pengaturan
+            </button>
+            <button class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft" data-toast="Sesi demo tidak dapat diakhiri.">
+              <i class="ph-light ph-sign-out text-base" aria-hidden="true"></i> Keluar
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1" class="px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+      <!-- ==================================================================
+           VIEW: RINGKASAN
+      =================================================================== -->
+      <section data-view="ringkasan" class="animate-fade-up">
+        <div class="relative isolate flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div class="pointer-events-none absolute -right-4 -top-16 -z-10 h-48 w-48 rounded-full bg-brand/10 blur-3xl" aria-hidden="true"></div>
+          <div>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-[11px] font-semibold text-brand-fg"><i class="ph-light ph-sparkle" aria-hidden="true"></i> EDO v2 · Dashboard</span>
+            <h2 class="mt-2 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Ringkasan Organisasi</h2>
+            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted">Pantau persuratan, keanggotaan, dan kaderisasi PC IPNU &amp; IPPNU Kabupaten Trenggalek dalam satu tampilan.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface px-3 py-2.5 text-xs font-medium text-muted">
+              <i class="ph-light ph-calendar-blank text-base" aria-hidden="true"></i>
+              Kamis, 19 November 2026
+            </span>
+            <button id="export-overview" class="btn-secondary">
+              <i class="ph-light ph-download-simple text-base" aria-hidden="true"></i> Ekspor
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <article data-reveal class="card card-lift relative overflow-hidden p-5">
+            <div class="flex items-start justify-between">
+              <span class="grid h-10 w-10 place-items-center rounded-2xl bg-brand-soft text-brand"><i class="ph-light ph-envelope-simple text-xl" aria-hidden="true"></i></span>
+              <span class="badge bg-brand-soft text-brand"><i class="ph-light ph-trend-up" aria-hidden="true"></i> 12%</span>
+            </div>
+            <p class="mt-4 text-sm font-medium text-muted">Surat Masuk</p>
+            <p class="mt-1 text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">128</p>
+            <p class="mt-1 text-xs text-muted">Nov 2026 · 2 menunggu</p>
+            <div class="mt-4 -mb-5 -mx-5 h-9">
+              <svg viewBox="0 0 120 32" preserveAspectRatio="none" class="h-9 w-full text-brand/35" fill="none" aria-hidden="true">
+                <path d="M0 26 L15 23 L30 25 L45 17 L60 19 L75 11 L90 13 L105 7 L120 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+              </svg>
+            </div>
+          </article>
+
+          <article data-reveal class="card card-lift relative overflow-hidden p-5">
+            <div class="flex items-start justify-between">
+              <span class="grid h-10 w-10 place-items-center rounded-2xl bg-info-soft text-info"><i class="ph-light ph-paper-plane-tilt text-xl" aria-hidden="true"></i></span>
+              <span class="badge bg-brand-soft text-brand"><i class="ph-light ph-trend-up" aria-hidden="true"></i> 8%</span>
+            </div>
+            <p class="mt-4 text-sm font-medium text-muted">Surat Keluar</p>
+            <p class="mt-1 text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">96</p>
+            <p class="mt-1 text-xs text-muted">Nov 2026 · 1 draf</p>
+            <div class="mt-4 -mb-5 -mx-5 h-9">
+              <svg viewBox="0 0 120 32" preserveAspectRatio="none" class="h-9 w-full text-info/35" fill="none" aria-hidden="true">
+                <path d="M0 24 L15 25 L30 19 L45 21 L60 14 L75 16 L90 9 L105 11 L120 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+              </svg>
+            </div>
+          </article>
+
+          <article data-reveal class="card card-lift relative overflow-hidden p-5">
+            <div class="flex items-start justify-between">
+              <span class="grid h-10 w-10 place-items-center rounded-2xl bg-violet-soft text-violet"><i class="ph-light ph-users-three text-xl" aria-hidden="true"></i></span>
+              <span class="badge bg-brand-soft text-brand"><i class="ph-light ph-trend-up" aria-hidden="true"></i> 3,4%</span>
+            </div>
+            <p class="mt-4 text-sm font-medium text-muted">Anggota Aktif</p>
+            <p class="mt-1 text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">4.812</p>
+            <p class="mt-1 text-xs text-muted">IPNU 2.746 · IPPNU 2.066</p>
+            <div class="mt-4 -mb-5 -mx-5 h-9">
+              <svg viewBox="0 0 120 32" preserveAspectRatio="none" class="h-9 w-full text-violet/35" fill="none" aria-hidden="true">
+                <path d="M0 27 L15 24 L30 25 L45 20 L60 18 L75 15 L90 12 L105 10 L120 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+              </svg>
+            </div>
+          </article>
+
+          <article data-reveal class="card card-lift relative overflow-hidden p-5">
+            <div class="flex items-start justify-between">
+              <span class="grid h-10 w-10 place-items-center rounded-2xl bg-accent-soft text-accent"><i class="ph-light ph-graduation-cap text-xl" aria-hidden="true"></i></span>
+              <span class="badge bg-brand-soft text-brand"><i class="ph-light ph-trend-up" aria-hidden="true"></i> 5,1%</span>
+            </div>
+            <p class="mt-4 text-sm font-medium text-muted">Kader Aktif</p>
+            <p class="mt-1 text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">862</p>
+            <p class="mt-1 text-xs text-muted">3 program berjalan</p>
+            <div class="mt-4 -mb-5 -mx-5 h-9">
+              <svg viewBox="0 0 120 32" preserveAspectRatio="none" class="h-9 w-full text-accent/35" fill="none" aria-hidden="true">
+                <path d="M0 28 L15 26 L30 22 L45 23 L60 17 L75 19 L90 13 L105 14 L120 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+              </svg>
+            </div>
+          </article>
+        </div>
+
+        <!-- Grafik + funnel -->
+        <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <article data-reveal class="card card-lift p-5 lg:col-span-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-bold">Distribusi Anggota per PAC</h3>
+                <p class="text-xs text-muted">8 PAC dengan anggota terbanyak · 2026</p>
+              </div>
+              <span class="badge bg-brand-soft text-brand">Total 4.812</span>
+            </div>
+
+            <div id="pac-chart" class="mt-6 flex h-56 items-end gap-2 overflow-x-auto pb-1 sm:gap-3" role="img" aria-label="Grafik batang jumlah anggota per PAC. Trenggalek 612, Pogalan 498, Karangan 464, Watulimo 421, Panggul 388, Durenan 356, Gandusari 327, Kampak 296.">
+            </div>
+
+            <table class="sr-only">
+              <caption>Jumlah anggota per PAC</caption>
+              <thead><tr><th scope="col">PAC</th><th scope="col">Jumlah anggota</th></tr></thead>
+              <tbody id="pac-chart-table"></tbody>
+            </table>
+          </article>
+
+          <article data-reveal class="card card-lift p-5">
+            <h3 class="text-sm font-bold">Jenjang Kaderisasi</h3>
+            <p class="text-xs text-muted">Komposisi anggota menurut jenjang</p>
+            <div class="mt-5 space-y-4">
+              <div>
+                <div class="flex items-center justify-between text-xs"><span class="font-medium">Anggota Muda</span><span class="font-mono font-semibold tabular-nums">1.284</span></div>
+                <div class="mt-1.5 h-2 rounded-full bg-elevated"><div class="h-2 rounded-full bg-brand/30" style="width:27%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-xs"><span class="font-medium">Anggota</span><span class="font-mono font-semibold tabular-nums">2.518</span></div>
+                <div class="mt-1.5 h-2 rounded-full bg-elevated"><div class="h-2 rounded-full bg-brand/55" style="width:52%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-xs"><span class="font-medium">Kader</span><span class="font-mono font-semibold tabular-nums">862</span></div>
+                <div class="mt-1.5 h-2 rounded-full bg-elevated"><div class="h-2 rounded-full bg-brand/80" style="width:18%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-xs"><span class="font-medium">Kader Utama</span><span class="font-mono font-semibold tabular-nums">148</span></div>
+                <div class="mt-1.5 h-2 rounded-full bg-elevated"><div class="h-2 rounded-full bg-brand" style="width:6%"></div></div>
+              </div>
+            </div>
+            <a href="#kaderisasi" class="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:underline">
+              Lihat detail kaderisasi <i class="ph-light ph-arrow-right" aria-hidden="true"></i>
+            </a>
+          </article>
+        </div>
+
+        <!-- Surat terbaru + agenda -->
+        <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <article data-reveal class="card overflow-hidden lg:col-span-2">
+            <div class="flex items-center justify-between border-b border-line px-5 py-4">
+              <div>
+                <h3 class="text-sm font-bold">Surat Terbaru</h3>
+                <p class="text-xs text-muted">5 aktivitas terakhir</p>
+              </div>
+              <a href="#persuratan" class="text-xs font-bold text-brand hover:underline">Lihat semua</a>
+            </div>
+            <ul id="recent-surat" class="divide-y divide-line"></ul>
+          </article>
+
+          <article data-reveal class="card card-lift p-5">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold">Agenda Mendatang</h3>
+              <span class="badge bg-accent-soft text-accent">4 kegiatan</span>
+            </div>
+            <ol class="mt-4 space-y-3">
+              <li class="flex gap-3 rounded-xl border border-line p-3">
+                <div class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-brand-soft text-center leading-none text-brand">
+                  <span class="block font-mono text-sm font-bold">20</span>
+                  <span class="mt-0.5 block text-[9px] font-bold uppercase">Nov</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold leading-snug">Rapat Pleno Pengurus</p>
+                  <p class="mt-0.5 text-[11px] text-muted">19.30 WIB · Sekretariat PC</p>
+                </div>
+              </li>
+              <li class="flex gap-3 rounded-xl border border-line p-3">
+                <div class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-accent-soft text-center leading-none text-accent">
+                  <span class="block font-mono text-sm font-bold">22</span>
+                  <span class="mt-0.5 block text-[9px] font-bold uppercase">Nov</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold leading-snug">LAKMUD Angkatan IX</p>
+                  <p class="mt-0.5 text-[11px] text-muted">20–22 Nov · Aula PCNU</p>
+                </div>
+              </li>
+              <li class="flex gap-3 rounded-xl border border-line p-3">
+                <div class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-info-soft text-center leading-none text-info">
+                  <span class="block font-mono text-sm font-bold">28</span>
+                  <span class="mt-0.5 block text-[9px] font-bold uppercase">Nov</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold leading-snug">Pelantikan PAC Pogalan</p>
+                  <p class="mt-0.5 text-[11px] text-muted">09.00 WIB · Kantor Kecamatan</p>
+                </div>
+              </li>
+              <li class="flex gap-3 rounded-xl border border-line p-3">
+                <div class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-brand-soft text-center leading-none text-brand">
+                  <span class="block font-mono text-sm font-bold">12</span>
+                  <span class="mt-0.5 block text-[9px] font-bold uppercase">Des</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold leading-snug">MAKESTA Angkatan XXIV</p>
+                  <p class="mt-0.5 text-[11px] text-muted">12–14 Des · SMKN 1 Trenggalek</p>
+                </div>
+              </li>
+            </ol>
+          </article>
+        </div>
+
+        <p class="mt-6 text-center text-[11px] text-muted">Data pada dashboard ini adalah contoh (dummy) untuk keperluan prototipe.</p>
+      </section>
+
+      <!-- ==================================================================
+           VIEW: PERSURATAN
+      =================================================================== -->
+      <section data-view="persuratan" class="hidden animate-fade-up">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-[11px] font-semibold text-brand-fg"><i class="ph-light ph-envelope-simple" aria-hidden="true"></i> Administrasi</span>
+            <h2 class="mt-2 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Persuratan</h2>
+            <p class="mt-1 text-sm text-muted">Kelola surat masuk dan keluar, disposisi, serta arsip digital.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="export-surat" class="btn-secondary">
+              <i class="ph-light ph-download-simple text-base" aria-hidden="true"></i> Ekspor CSV
+            </button>
+            <button class="btn-primary group" data-open="modal-surat">
+              <span>Buat Surat</span>
+              <span class="btn-trail" aria-hidden="true"><i class="ph-light ph-plus text-sm"></i></span>
+            </button>
+          </div>
+        </div>
+
+        <div data-reveal class="card mt-6 overflow-hidden">
+          <!-- Tab -->
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
+            <div class="flex items-center gap-1 rounded-xl bg-elevated p-1" role="tablist" aria-label="Jenis surat">
+              <button role="tab" aria-selected="true" data-surat-tab="masuk" class="tab-surat inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold text-ink transition-colors">
+                <i class="ph-light ph-tray text-base" aria-hidden="true"></i> Surat Masuk
+                <span id="count-masuk" class="rounded-md bg-brand-soft px-1.5 font-mono text-[10px] text-brand">0</span>
+              </button>
+              <button role="tab" aria-selected="false" data-surat-tab="keluar" class="tab-surat inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold text-muted transition-colors hover:text-ink">
+                <i class="ph-light ph-paper-plane-tilt text-base" aria-hidden="true"></i> Surat Keluar
+                <span id="count-keluar" class="rounded-md bg-surface px-1.5 font-mono text-[10px] text-muted">0</span>
+              </button>
+            </div>
+            <p class="text-xs text-muted">Arsip tahun <span class="font-semibold text-ink">2026</span></p>
+          </div>
+
+          <!-- Filter -->
+          <div class="flex flex-col gap-2 border-b border-line px-4 py-3 sm:flex-row sm:items-center sm:px-5">
+            <div class="relative w-full sm:max-w-xs">
+              <label for="filter-surat-q" class="sr-only">Cari surat</label>
+              <i class="ph-light ph-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base text-muted" aria-hidden="true"></i>
+              <input id="filter-surat-q" type="search" class="input h-9 pl-9" placeholder="Cari nomor, perihal, pengirim…" autocomplete="off" />
+            </div>
+            <label for="filter-surat-status" class="sr-only">Filter status surat</label>
+            <select id="filter-surat-status" class="select h-9 w-full sm:w-44">
+              <option value="semua">Semua status</option>
+              <option value="Menunggu">Menunggu</option>
+              <option value="Diproses">Diproses</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+            <button id="reset-surat" class="btn-ghost btn-sm sm:ml-auto">
+              <i class="ph-light ph-arrow-counter-clockwise text-base" aria-hidden="true"></i> Reset
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="tbl min-w-[720px]">
+              <caption class="sr-only">Daftar surat masuk dan keluar PC IPNU &amp; IPPNU Trenggalek</caption>
+              <thead class="bg-elevated/70">
+                <tr>
+                  <th scope="col" class="th w-10"><span class="sr-only">Pilih</span><input type="checkbox" id="select-all-surat" class="h-4 w-4 cursor-pointer rounded border-line accent-[rgb(var(--brand))]" aria-label="Pilih semua surat" /></th>
+                  <th scope="col" class="th">Nomor Surat</th>
+                  <th scope="col" class="th">Perihal</th>
+                  <th scope="col" class="th hidden lg:table-cell">Asal / Tujuan</th>
+                  <th scope="col" class="th hidden sm:table-cell">Tanggal</th>
+                  <th scope="col" class="th">Status</th>
+                  <th scope="col" class="th text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="surat-tbody" class="divide-y divide-line"></tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-col gap-2 border-t border-line px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+            <p id="surat-info" class="text-xs text-muted" aria-live="polite">—</p>
+            <div id="surat-pager" class="flex items-center gap-1"></div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-[11px] text-muted"><i class="ph-light ph-info mr-1" aria-hidden="true"></i> Surat berstatus <span class="font-semibold text-ink">Menunggu</span> perlu disposisi sebelum diproses.</p>
+      </section>
+
+      <!-- ==================================================================
+           VIEW: ANGGOTA
+      =================================================================== -->
+      <section data-view="anggota" class="hidden animate-fade-up">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-[11px] font-semibold text-brand-fg"><i class="ph-light ph-users-three" aria-hidden="true"></i> Keanggotaan</span>
+            <h2 class="mt-2 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Data Anggota</h2>
+            <p class="mt-1 text-sm text-muted">Basis data anggota IPNU &amp; IPPNU se-Kabupaten Trenggalek.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="export-anggota" class="btn-secondary">
+              <i class="ph-light ph-download-simple text-base" aria-hidden="true"></i> Ekspor CSV
+            </button>
+            <button class="btn-primary group" data-open="modal-anggota">
+              <span>Tambah Anggota</span>
+              <span class="btn-trail" aria-hidden="true"><i class="ph-light ph-user-plus text-sm"></i></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ringkasan kecil -->
+        <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div class="stat-tile">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">Total</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight tabular-nums">4.812</p>
+          </div>
+          <div class="stat-tile">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">IPNU</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-brand">2.746</p>
+          </div>
+          <div class="stat-tile">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">IPPNU</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-info">2.066</p>
+          </div>
+          <div class="stat-tile">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">Non-aktif</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-muted">184</p>
+          </div>
+        </div>
+
+        <div data-reveal class="card mt-4 overflow-hidden">
+          <div class="flex flex-col gap-2 border-b border-line px-4 py-3 sm:flex-row sm:items-center sm:px-5">
+            <div class="relative w-full sm:max-w-xs">
+              <label for="filter-anggota-q" class="sr-only">Cari anggota</label>
+              <i class="ph-light ph-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base text-muted" aria-hidden="true"></i>
+              <input id="filter-anggota-q" type="search" class="input h-9 pl-9" placeholder="Cari nama, NIA, atau PAC…" autocomplete="off" />
+            </div>
+            <label for="filter-anggota-pac" class="sr-only">Filter PAC</label>
+            <select id="filter-anggota-pac" class="select h-9 w-full sm:w-40">
+              <option value="semua">Semua PAC</option>
+            </select>
+            <label for="filter-anggota-status" class="sr-only">Filter status</label>
+            <select id="filter-anggota-status" class="select h-9 w-full sm:w-36">
+              <option value="semua">Semua status</option>
+              <option value="Aktif">Aktif</option>
+              <option value="Non-aktif">Non-aktif</option>
+              <option value="Cuti">Cuti</option>
+            </select>
+            <button id="reset-anggota" class="btn-ghost btn-sm sm:ml-auto">
+              <i class="ph-light ph-arrow-counter-clockwise text-base" aria-hidden="true"></i> Reset
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 border-b border-line px-4 py-3 sm:px-5">
+            <div class="flex flex-wrap gap-2" role="group" aria-label="Filter organisasi">
+              <button class="chip is-active" data-anggota-org="semua">Semua</button>
+              <button class="chip" data-anggota-org="IPNU">IPNU</button>
+              <button class="chip" data-anggota-org="IPPNU">IPPNU</button>
+            </div>
+            <span id="anggota-info-top" class="ml-auto hidden text-xs text-muted sm:block" aria-live="polite">—</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="tbl min-w-[760px]">
+              <caption class="sr-only">Daftar anggota IPNU dan IPPNU Kabupaten Trenggalek</caption>
+              <thead class="bg-elevated/70">
+                <tr>
+                  <th scope="col" class="th w-10"><input type="checkbox" id="select-all-anggota" class="h-4 w-4 cursor-pointer rounded border-line accent-[rgb(var(--brand))]" aria-label="Pilih semua anggota" /></th>
+                  <th scope="col" class="th">Nama Anggota</th>
+                  <th scope="col" class="th">NIA</th>
+                  <th scope="col" class="th hidden md:table-cell">PAC</th>
+                  <th scope="col" class="th hidden sm:table-cell">Jenjang</th>
+                  <th scope="col" class="th">Status</th>
+                  <th scope="col" class="th text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="anggota-tbody" class="divide-y divide-line"></tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-col gap-2 border-t border-line px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+            <p id="anggota-info" class="text-xs text-muted" aria-live="polite">—</p>
+            <div id="anggota-pager" class="flex items-center gap-1"></div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-[11px] text-muted"><i class="ph-light ph-info mr-1" aria-hidden="true"></i> NIA adalah Nomor Induk Anggota yang diterbitkan oleh PC. Gunakan pencarian untuk verifikasi cepat.</p>
+      </section>
+
+      <!-- ==================================================================
+           VIEW: KADERISASI
+      =================================================================== -->
+      <section data-view="kaderisasi" class="hidden animate-fade-up">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-[11px] font-semibold text-brand-fg"><i class="ph-light ph-graduation-cap" aria-hidden="true"></i> Pengembangan</span>
+            <h2 class="mt-2 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Kaderisasi</h2>
+            <p class="mt-1 text-sm text-muted">Pantau jenjang kader dan program pelatihan yang berjalan.</p>
+          </div>
+          <button class="btn-primary group" data-open="modal-program">
+            <span>Buat Program</span>
+            <span class="btn-trail" aria-hidden="true"><i class="ph-light ph-plus text-sm"></i></span>
+          </button>
+        </div>
+
+        <!-- Statistik -->
+        <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div data-reveal class="card p-4">
+            <div class="flex items-center gap-2 text-muted"><i class="ph-light ph-users-three text-base" aria-hidden="true"></i><p class="text-[11px] font-semibold uppercase tracking-wider">Kader Aktif</p></div>
+            <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums">862</p>
+            <p class="text-[11px] text-brand">+42 tahun ini</p>
+          </div>
+          <div data-reveal class="card p-4">
+            <div class="flex items-center gap-2 text-muted"><i class="ph-light ph-seal-check text-base" aria-hidden="true"></i><p class="text-[11px] font-semibold uppercase tracking-wider">Lulus 2026</p></div>
+            <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums">214</p>
+            <p class="text-[11px] text-muted">dari 5 angkatan</p>
+          </div>
+          <div data-reveal class="card p-4">
+            <div class="flex items-center gap-2 text-muted"><i class="ph-light ph-chalkboard-teacher text-base" aria-hidden="true"></i><p class="text-[11px] font-semibold uppercase tracking-wider">Program Berjalan</p></div>
+            <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums">3</p>
+            <p class="text-[11px] text-muted">1 dijadwalkan</p>
+          </div>
+          <div data-reveal class="card p-4">
+            <div class="flex items-center gap-2 text-muted"><i class="ph-light ph-chart-line-up text-base" aria-hidden="true"></i><p class="text-[11px] font-semibold uppercase tracking-wider">Rasio Kader</p></div>
+            <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums">17,9%</p>
+            <p class="text-[11px] text-muted">dari total anggota</p>
+          </div>
+        </div>
+
+        <!-- Pipeline -->
+        <article data-reveal class="card mt-4 p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold">Alur Jenjang Kader</h3>
+              <p class="text-xs text-muted">Dari anggota muda hingga kader utama</p>
+            </div>
+            <span class="badge bg-brand-soft text-brand">4 jenjang</span>
+          </div>
+
+          <ol class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <li class="relative rounded-xl border border-line bg-elevated/50 p-4">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-muted">01</span>
+                <i class="ph-light ph-user text-lg text-muted" aria-hidden="true"></i>
+              </div>
+              <p class="mt-2 text-xs font-semibold text-muted">Anggota Muda</p>
+              <p class="font-mono text-xl font-bold tabular-nums">1.284</p>
+              <div class="mt-2 h-1.5 rounded-full bg-line"><div class="h-1.5 rounded-full bg-brand/30" style="width:27%"></div></div>
+            </li>
+            <li class="relative rounded-xl border border-line bg-elevated/50 p-4">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-muted">02</span>
+                <i class="ph-light ph-user-check text-lg text-info" aria-hidden="true"></i>
+              </div>
+              <p class="mt-2 text-xs font-semibold text-muted">Anggota</p>
+              <p class="font-mono text-xl font-bold tabular-nums">2.518</p>
+              <div class="mt-2 h-1.5 rounded-full bg-line"><div class="h-1.5 rounded-full bg-info/50" style="width:52%"></div></div>
+            </li>
+            <li class="relative rounded-xl border border-line bg-elevated/50 p-4">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-muted">03</span>
+                <i class="ph-light ph-medal text-lg text-brand" aria-hidden="true"></i>
+              </div>
+              <p class="mt-2 text-xs font-semibold text-muted">Kader</p>
+              <p class="font-mono text-xl font-bold tabular-nums">862</p>
+              <div class="mt-2 h-1.5 rounded-full bg-line"><div class="h-1.5 rounded-full bg-brand/70" style="width:18%"></div></div>
+            </li>
+            <li class="relative rounded-xl border border-line bg-elevated/50 p-4">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-muted">04</span>
+                <i class="ph-light ph-crown-simple text-lg text-accent" aria-hidden="true"></i>
+              </div>
+              <p class="mt-2 text-xs font-semibold text-muted">Kader Utama</p>
+              <p class="font-mono text-xl font-bold tabular-nums">148</p>
+              <div class="mt-2 h-1.5 rounded-full bg-line"><div class="h-1.5 rounded-full bg-accent" style="width:6%"></div></div>
+            </li>
+          </ol>
+        </article>
+
+        <!-- Program -->
+        <div class="mt-6 flex items-center justify-between">
+          <h3 class="text-sm font-bold">Program Kaderisasi</h3>
+          <span class="text-xs text-muted">4 program · 2026/2027</span>
+        </div>
+        <div id="program-grid" class="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2"></div>
+
+        <p class="mt-6 text-[11px] text-muted"><i class="ph-light ph-info mr-1" aria-hidden="true"></i> Kuota dan progres bersifat ilustratif. Hubungkan ke API kaderisasi untuk data real-time.</p>
+      </section>
+    </main>
+
+    <footer class="border-t border-line px-4 py-6 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-2 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 EDO v2 · PC IPNU &amp; IPPNU Kabupaten Trenggalek</p>
+        <p class="flex items-center gap-4">
+          <span class="inline-flex items-center gap-1"><i class="ph-light ph-shield-check" aria-hidden="true"></i> Data internal</span>
+          <span class="inline-flex items-center gap-1"><i class="ph-light ph-code" aria-hidden="true"></i> Tailwind CSS</span>
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ============================ MODAL: SURAT ============================ -->
+  <div id="modal-surat" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-surat-title">
+    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm" data-close="modal-surat"></div>
+    <div class="relative flex min-h-full items-end justify-center p-3 sm:items-center sm:p-6">
+      <div class="animate-pop-in w-full max-w-lg rounded-[1.75rem] border border-line/70 bg-surface shadow-[0_50px_100px_-40px_rgba(15,23,42,0.6)]">
+        <div class="flex items-start justify-between border-b border-line px-5 py-4">
+          <div>
+            <h2 id="modal-surat-title" class="text-base font-bold">Buat Surat Baru</h2>
+            <p class="text-xs text-muted">Catat surat masuk atau keluar ke arsip digital.</p>
+          </div>
+          <button class="icon-btn-sm" data-close="modal-surat" aria-label="Tutup dialog">
+            <i class="ph-light ph-x text-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+        <form id="form-surat" class="space-y-4 p-5">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="surat-jenis" class="label">Jenis surat <span class="text-danger">*</span></label>
+              <select id="surat-jenis" name="jenis" class="select" required>
+                <option value="masuk">Surat Masuk</option>
+                <option value="keluar">Surat Keluar</option>
+              </select>
+            </div>
+            <div>
+              <label for="surat-status" class="label">Status <span class="text-danger">*</span></label>
+              <select id="surat-status" name="status" class="select" required>
+                <option value="Menunggu">Menunggu</option>
+                <option value="Diproses">Diproses</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="surat-nomor" class="label">Nomor surat <span class="text-danger">*</span></label>
+            <input id="surat-nomor" name="nomor" class="input font-mono" required placeholder="129/PC-A/IPNU-TGL/XI/2026" />
+          </div>
+          <div>
+            <label for="surat-perihal" class="label">Perihal <span class="text-danger">*</span></label>
+            <input id="surat-perihal" name="perihal" class="input" required placeholder="Contoh: Undangan Rapat Kerja Cabang" />
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="surat-pihak" class="label">Asal / Tujuan <span class="text-danger">*</span></label>
+              <input id="surat-pihak" name="pihak" class="input" required placeholder="PC IPNU Kab. Tulungagung" />
+            </div>
+            <div>
+              <label for="surat-tanggal" class="label">Tanggal <span class="text-danger">*</span></label>
+              <input id="surat-tanggal" name="tanggal" type="date" class="input" required />
+            </div>
+          </div>
+          <p class="flex items-start gap-2 rounded-xl bg-elevated p-3 text-[11px] leading-relaxed text-muted">
+            <i class="ph-light ph-info mt-0.5 text-base" aria-hidden="true"></i>
+            Data akan tersimpan di sesi prototipe ini dan langsung muncul pada tabel persuratan.
+          </p>
+          <div class="flex items-center justify-end gap-2 pt-1">
+            <button type="button" class="btn-secondary" data-close="modal-surat">Batal</button>
+            <button type="submit" class="btn-primary">
+              <i class="ph-light ph-check text-base" aria-hidden="true"></i> Simpan Surat
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ MODAL: ANGGOTA ============================ -->
+  <div id="modal-anggota" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-anggota-title">
+    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm" data-close="modal-anggota"></div>
+    <div class="relative flex min-h-full items-end justify-center p-3 sm:items-center sm:p-6">
+      <div class="animate-pop-in w-full max-w-lg rounded-[1.75rem] border border-line/70 bg-surface shadow-[0_50px_100px_-40px_rgba(15,23,42,0.6)]">
+        <div class="flex items-start justify-between border-b border-line px-5 py-4">
+          <div>
+            <h2 id="modal-anggota-title" class="text-base font-bold">Tambah Anggota</h2>
+            <p class="text-xs text-muted">Daftarkan anggota baru ke basis data PC.</p>
+          </div>
+          <button class="icon-btn-sm" data-close="modal-anggota" aria-label="Tutup dialog">
+            <i class="ph-light ph-x text-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+        <form id="form-anggota" class="space-y-4 p-5">
+          <div>
+            <label for="anggota-nama" class="label">Nama lengkap <span class="text-danger">*</span></label>
+            <input id="anggota-nama" name="nama" class="input" required placeholder="Nama sesuai KTA" />
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="anggota-nia" class="label">NIA <span class="text-danger">*</span></label>
+              <input id="anggota-nia" name="nia" class="input font-mono" required placeholder="2024.01.01234" />
+            </div>
+            <div>
+              <label for="anggota-org" class="label">Organisasi <span class="text-danger">*</span></label>
+              <select id="anggota-org" name="org" class="select" required>
+                <option value="IPNU">IPNU</option>
+                <option value="IPPNU">IPPNU</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="anggota-pac" class="label">PAC <span class="text-danger">*</span></label>
+              <select id="anggota-pac" name="pac" class="select" required></select>
+            </div>
+            <div>
+              <label for="anggota-status" class="label">Status <span class="text-danger">*</span></label>
+              <select id="anggota-status" name="status" class="select" required>
+                <option value="Aktif">Aktif</option>
+                <option value="Non-aktif">Non-aktif</option>
+                <option value="Cuti">Cuti</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="anggota-jenjang" class="label">Jenjang <span class="text-danger">*</span></label>
+              <select id="anggota-jenjang" name="jenjang" class="select" required>
+                <option value="Anggota Muda">Anggota Muda</option>
+                <option value="Anggota">Anggota</option>
+                <option value="Kader">Kader</option>
+                <option value="Kader Utama">Kader Utama</option>
+              </select>
+            </div>
+            <div>
+              <label for="anggota-joined" class="label">Tahun gabung <span class="text-danger">*</span></label>
+              <input id="anggota-joined" name="joined" type="number" min="1980" max="2026" class="input font-mono" required placeholder="2024" />
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 pt-1">
+            <button type="button" class="btn-secondary" data-close="modal-anggota">Batal</button>
+            <button type="submit" class="btn-primary">
+              <i class="ph-light ph-check text-base" aria-hidden="true"></i> Simpan Anggota
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ MODAL: PROGRAM ============================ -->
+  <div id="modal-program" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-program-title">
+    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm" data-close="modal-program"></div>
+    <div class="relative flex min-h-full items-end justify-center p-3 sm:items-center sm:p-6">
+      <div class="animate-pop-in w-full max-w-lg rounded-[1.75rem] border border-line/70 bg-surface shadow-[0_50px_100px_-40px_rgba(15,23,42,0.6)]">
+        <div class="flex items-start justify-between border-b border-line px-5 py-4">
+          <div>
+            <h2 id="modal-program-title" class="text-base font-bold">Buat Program Kaderisasi</h2>
+            <p class="text-xs text-muted">Tambahkan agenda pelatihan kader baru.</p>
+          </div>
+          <button class="icon-btn-sm" data-close="modal-program" aria-label="Tutup dialog">
+            <i class="ph-light ph-x text-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+        <form id="form-program" class="space-y-4 p-5">
+          <div>
+            <label for="program-nama" class="label">Nama program <span class="text-danger">*</span></label>
+            <input id="program-nama" name="nama" class="input" required placeholder="MAKESTA Angkatan XXV" />
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="program-level" class="label">Jenjang <span class="text-danger">*</span></label>
+              <select id="program-level" name="level" class="select" required>
+                <option value="Dasar">Dasar</option>
+                <option value="Menengah">Menengah</option>
+                <option value="Lanjutan">Lanjutan</option>
+                <option value="Tinggi">Tinggi</option>
+              </select>
+            </div>
+            <div>
+              <label for="program-kuota" class="label">Kuota peserta <span class="text-danger">*</span></label>
+              <input id="program-kuota" name="kuota" type="number" min="1" max="500" class="input font-mono" required placeholder="60" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="program-tanggal" class="label">Tanggal mulai <span class="text-danger">*</span></label>
+              <input id="program-tanggal" name="tanggal" type="date" class="input" required />
+            </div>
+            <div>
+              <label for="program-status" class="label">Status <span class="text-danger">*</span></label>
+              <select id="program-status" name="status" class="select" required>
+                <option value="Dijadwalkan">Dijadwalkan</option>
+                <option value="Pendaftaran">Pendaftaran</option>
+                <option value="Berjalan">Berjalan</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 pt-1">
+            <button type="button" class="btn-secondary" data-close="modal-program">Batal</button>
+            <button type="submit" class="btn-primary">
+              <i class="ph-light ph-check text-base" aria-hidden="true"></i> Simpan Program
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ MODAL: DETAIL ============================ -->
+  <div id="modal-detail" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
+    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm" data-close="modal-detail"></div>
+    <div class="relative flex min-h-full items-end justify-center p-3 sm:items-center sm:p-6">
+      <div class="animate-pop-in w-full max-w-md rounded-[1.75rem] border border-line/70 bg-surface shadow-[0_50px_100px_-40px_rgba(15,23,42,0.6)]">
+        <div class="flex items-start justify-between border-b border-line px-5 py-4">
+          <div>
+            <h2 id="modal-detail-title" class="text-base font-bold">Detail</h2>
+            <p id="modal-detail-sub" class="text-xs text-muted"></p>
+          </div>
+          <button class="icon-btn-sm" data-close="modal-detail" aria-label="Tutup dialog">
+            <i class="ph-light ph-x text-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div id="modal-detail-body" class="p-5"></div>
+        <div class="flex justify-end border-t border-line px-5 py-4">
+          <button class="btn-secondary" data-close="modal-detail">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast-container" class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2" aria-live="polite" aria-atomic="false"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ============================ DATA ============================ */
+      const PAC_LIST = ['Trenggalek', 'Pogalan', 'Karangan', 'Watulimo', 'Panggul', 'Durenan', 'Gandusari', 'Kampak', 'Bendungan', 'Munjungan', 'Pule', 'Suruh', 'Tugu', 'Dongko'];
+
+      const pacData = [
+        { name: 'Trenggalek', total: 612 },
+        { name: 'Pogalan', total: 498 },
+        { name: 'Karangan', total: 464 },
+        { name: 'Watulimo', total: 421 },
+        { name: 'Panggul', total: 388 },
+        { name: 'Durenan', total: 356 },
+        { name: 'Gandusari', total: 327 },
+        { name: 'Kampak', total: 296 }
+      ];
+
+      const surat = [
+        { id: 's1', jenis: 'masuk', nomor: '128/PC-A/IPNU-TGL/XI/2026', perihal: 'Undangan Rapat Kerja Cabang', pihak: 'PC IPNU Kab. Tulungagung', tanggal: '2026-11-18', status: 'Menunggu' },
+        { id: 's2', jenis: 'masuk', nomor: '127/PC-A/IPNU-TGL/XI/2026', perihal: 'Permohonan Narasumber MAKESTA', pihak: 'PAC Pogalan', tanggal: '2026-11-17', status: 'Diproses' },
+        { id: 's3', jenis: 'masuk', nomor: '126/PC-A/IPNU-TGL/XI/2026', perihal: 'Pemberitahuan Perubahan Jadwal PKLT', pihak: 'PW IPNU Jawa Timur', tanggal: '2026-11-15', status: 'Selesai' },
+        { id: 's4', jenis: 'masuk', nomor: '125/PC-A/IPNU-TGL/XI/2026', perihal: 'Permohonan Data Keanggotaan', pihak: 'Kemenag Trenggalek', tanggal: '2026-11-14', status: 'Selesai' },
+        { id: 's5', jenis: 'masuk', nomor: '124/PC-A/IPNU-TGL/XI/2026', perihal: 'Undangan Harlah NU ke-100', pihak: 'PCNU Trenggalek', tanggal: '2026-11-12', status: 'Selesai' },
+        { id: 's6', jenis: 'masuk', nomor: '123/PC-A/IPNU-TGL/XI/2026', perihal: 'Permohonan Izin Kegiatan', pihak: 'PAC Watulimo', tanggal: '2026-11-11', status: 'Diproses' },
+        { id: 's7', jenis: 'masuk', nomor: '122/PC-A/IPNU-TGL/XI/2026', perihal: 'Surat Edaran Administrasi', pihak: 'PW IPPNU Jawa Timur', tanggal: '2026-11-09', status: 'Selesai' },
+        { id: 's8', jenis: 'masuk', nomor: '121/PC-A/IPNU-TGL/XI/2026', perihal: 'Undangan Musyawarah Anak Cabang', pihak: 'PAC Karangan', tanggal: '2026-11-07', status: 'Menunggu' },
+        { id: 's9', jenis: 'masuk', nomor: '120/PC-A/IPNU-TGL/XI/2026', perihal: 'Permohonan Kerja Sama Pelatihan', pihak: 'SMKN 1 Trenggalek', tanggal: '2026-11-05', status: 'Selesai' },
+        { id: 's10', jenis: 'masuk', nomor: '119/PC-A/IPNU-TGL/XI/2026', perihal: 'Undangan Peringatan Hari Santri', pihak: 'Pemkab Trenggalek', tanggal: '2026-11-03', status: 'Selesai' },
+        { id: 's11', jenis: 'keluar', nomor: '096/PC-A/IPNU-TGL/XI/2026', perihal: 'Balasan Undangan Rapat Kerja', pihak: 'PC IPNU Kab. Tulungagung', tanggal: '2026-11-18', status: 'Selesai' },
+        { id: 's12', jenis: 'keluar', nomor: '095/PC-A/IPNU-TGL/XI/2026', perihal: 'Pengantar Data Anggota 2026', pihak: 'Kemenag Trenggalek', tanggal: '2026-11-16', status: 'Selesai' },
+        { id: 's13', jenis: 'keluar', nomor: '094/PC-A/IPNU-TGL/XI/2026', perihal: 'Permohonan Tempat MAKESTA', pihak: 'SMKN 1 Trenggalek', tanggal: '2026-11-14', status: 'Diproses' },
+        { id: 's14', jenis: 'keluar', nomor: '093/PC-A/IPNU-TGL/XI/2026', perihal: 'Undangan Rapat Pleno', pihak: 'PAC se-Trenggalek', tanggal: '2026-11-12', status: 'Selesai' },
+        { id: 's15', jenis: 'keluar', nomor: '092/PC-A/IPNU-TGL/XI/2026', perihal: 'Laporan Kegiatan LAKMUD IX', pihak: 'PW IPNU Jawa Timur', tanggal: '2026-11-10', status: 'Selesai' },
+        { id: 's16', jenis: 'keluar', nomor: '091/PC-A/IPNU-TGL/XI/2026', perihal: 'Permohonan Rekomendasi', pihak: 'PCNU Trenggalek', tanggal: '2026-11-08', status: 'Menunggu' }
+      ];
+
+      const anggota = [
+        { id: 'a1', nama: 'Ahmad Fauzan Hidayat', nia: '2019.01.00123', org: 'IPNU', pac: 'Trenggalek', status: 'Aktif', jenjang: 'Kader', joined: 2019 },
+        { id: 'a2', nama: 'M. Rizal Fahmi', nia: '2021.01.00421', org: 'IPNU', pac: 'Pogalan', status: 'Aktif', jenjang: 'Anggota', joined: 2021 },
+        { id: 'a3', nama: 'Agus Setiawan', nia: '2018.01.00087', org: 'IPNU', pac: 'Karangan', status: 'Aktif', jenjang: 'Kader', joined: 2018 },
+        { id: 'a4', nama: 'Nur Kholis Majid', nia: '2022.01.00564', org: 'IPNU', pac: 'Watulimo', status: 'Aktif', jenjang: 'Anggota', joined: 2022 },
+        { id: 'a5', nama: 'Bagus Dwi Prasetyo', nia: '2020.01.00298', org: 'IPNU', pac: 'Panggul', status: 'Aktif', jenjang: 'Kader Utama', joined: 2016 },
+        { id: 'a6', nama: 'Syaiful Anam', nia: '2017.01.00064', org: 'IPNU', pac: 'Durenan', status: 'Aktif', jenjang: 'Kader', joined: 2017 },
+        { id: 'a7', nama: 'M. Fahmi Idris', nia: '2019.01.00156', org: 'IPNU', pac: 'Gandusari', status: 'Non-aktif', jenjang: 'Anggota', joined: 2019 },
+        { id: 'a8', nama: 'Dimas Arya Putra', nia: '2023.01.00712', org: 'IPNU', pac: 'Kampak', status: 'Aktif', jenjang: 'Anggota Muda', joined: 2023 },
+        { id: 'a9', nama: 'Nabila Putri Ramadhani', nia: '2020.02.00311', org: 'IPPNU', pac: 'Trenggalek', status: 'Aktif', jenjang: 'Kader', joined: 2020 },
+        { id: 'a10', nama: 'Siti Nur Aisyah', nia: '2022.02.00602', org: 'IPPNU', pac: 'Pogalan', status: 'Aktif', jenjang: 'Anggota', joined: 2022 },
+        { id: 'a11', nama: 'Dewi Anggraini', nia: '2018.02.00104', org: 'IPPNU', pac: 'Karangan', status: 'Aktif', jenjang: 'Kader', joined: 2018 },
+        { id: 'a12', nama: 'Lailatul Fitriyah', nia: '2021.02.00488', org: 'IPPNU', pac: 'Watulimo', status: 'Aktif', jenjang: 'Anggota', joined: 2021 },
+        { id: 'a13', nama: 'Rina Maulida', nia: '2023.02.00745', org: 'IPPNU', pac: 'Bendungan', status: 'Aktif', jenjang: 'Anggota Muda', joined: 2023 },
+        { id: 'a14', nama: 'Umi Kulsum', nia: '2017.02.00059', org: 'IPPNU', pac: 'Tugu', status: 'Cuti', jenjang: 'Kader', joined: 2017 },
+        { id: 'a15', nama: 'Frida Aulia Rahma', nia: '2019.02.00237', org: 'IPPNU', pac: 'Suruh', status: 'Aktif', jenjang: 'Kader Utama', joined: 2015 },
+        { id: 'a16', nama: 'Ayu Wulandari', nia: '2022.02.00519', org: 'IPPNU', pac: 'Munjungan', status: 'Non-aktif', jenjang: 'Anggota', joined: 2022 }
+      ];
+
+      let programs = [
+        { id: 'p1', nama: 'MAKESTA Angkatan XXIV', level: 'Dasar', peserta: 48, kuota: 60, tanggal: '2026-12-12', status: 'Pendaftaran' },
+        { id: 'p2', nama: 'PKLT Angkatan XII', level: 'Lanjutan', peserta: 24, kuota: 30, tanggal: '2026-12-05', status: 'Berjalan' },
+        { id: 'p3', nama: 'LAKMUD Angkatan IX', level: 'Menengah', peserta: 18, kuota: 25, tanggal: '2026-11-20', status: 'Berjalan' },
+        { id: 'p4', nama: 'LAKUT Angkatan V', level: 'Tinggi', peserta: 12, kuota: 20, tanggal: '2027-01-08', status: 'Dijadwalkan' }
+      ];
+
+      const state = {
+        route: 'ringkasan',
+        suratTab: 'masuk',
+        suratQuery: '',
+        suratStatus: 'semua',
+        suratPage: 1,
+        anggotaQuery: '',
+        anggotaPac: 'semua',
+        anggotaStatus: 'semua',
+        anggotaOrg: 'semua',
+        anggotaPage: 1
+      };
+
+      const PAGE_SIZE = { surat: 6, anggota: 8 };
+
+      /* ============================ HELPERS ============================ */
+      const $ = (sel, root) => (root || document).querySelector(sel);
+      const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+      function esc(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+      }
+
+      function fmtDate(iso) {
+        const d = new Date(iso + 'T00:00:00');
+        if (isNaN(d)) return iso;
+        return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+
+      function fmtLongDate(iso) {
+        const d = new Date(iso + 'T00:00:00');
+        if (isNaN(d)) return iso;
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+
+      function initials(name) {
+        return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+      }
+
+      function badge(text, cls) {
+        return '<span class="badge ' + cls + '">' + esc(text) + '</span>';
+      }
+
+      const STATUS_CLS = {
+        'Selesai': 'bg-success-soft text-success',
+        'Aktif': 'bg-success-soft text-success',
+        'Berjalan': 'bg-success-soft text-success',
+        'Diproses': 'bg-accent-soft text-accent',
+        'Cuti': 'bg-accent-soft text-accent',
+        'Menunggu': 'border border-line bg-elevated text-muted',
+        'Non-aktif': 'border border-line bg-elevated text-muted',
+        'Dijadwalkan': 'border border-line bg-elevated text-muted',
+        'Pendaftaran': 'bg-info-soft text-info'
+      };
+
+      function statusBadge(status) {
+        return badge(status, STATUS_CLS[status] || 'border border-line bg-elevated text-muted');
+      }
+
+      function jenjangBadge(j) {
+        const cls = j === 'Kader Utama' ? 'bg-accent-soft text-accent'
+          : j === 'Kader' ? 'bg-brand-soft text-brand'
+          : j === 'Anggota' ? 'bg-info-soft text-info'
+          : 'bg-violet-soft text-violet';
+        return badge(j, cls);
+      }
+
+      function orgBadge(org) {
+        return badge(org, org === 'IPNU' ? 'bg-brand-soft text-brand' : 'bg-info-soft text-info');
+      }
+
+      function downloadFile(filename, content, type) {
+        const blob = new Blob([content], { type: type || 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+      }
+
+      function downloadCSV(filename, rows) {
+        const csv = rows.map((row) => row.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+        downloadFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8');
+      }
+
+      /* ============================ TOAST ============================ */
+      const toastBox = $('#toast-container');
+      function toast(message, kind) {
+        const tone = kind === 'error' ? 'border-danger/40 bg-danger-soft text-danger'
+          : kind === 'info' ? 'border-info/40 bg-info-soft text-info'
+          : 'border-success/40 bg-success-soft text-success';
+        const icon = kind === 'error' ? 'ph-warning-circle' : kind === 'info' ? 'ph-info' : 'ph-check-circle';
+        const el = document.createElement('div');
+        el.className = 'toast pointer-events-auto flex items-start gap-2.5 rounded-2xl border ' + tone + ' px-4 py-3 text-sm font-semibold shadow-lg';
+        el.innerHTML = '<i class="ph-light ' + icon + ' mt-0.5 text-lg" aria-hidden="true"></i><span>' + esc(message) + '</span>';
+        toastBox.appendChild(el);
+        setTimeout(() => {
+          el.style.transition = 'opacity 200ms ease, transform 200ms ease';
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(8px)';
+          setTimeout(() => el.remove(), 220);
+        }, 3600);
+      }
+
+      /* ============================ RENDER: OVERVIEW ============================ */
+      function renderPacChart() {
+        const max = Math.max.apply(null, pacData.map((p) => p.total));
+        $('#pac-chart').innerHTML = pacData.map((p) => {
+          const h = Math.round((p.total / max) * 100);
+          return '<div class="flex h-full min-w-[34px] flex-1 flex-col items-center justify-end gap-2" title="' + esc(p.name) + ': ' + p.total + ' anggota">' +
+            '<span class="font-mono text-[10px] font-semibold tabular-nums text-muted">' + p.total + '</span>' +
+            '<div class="flex w-full flex-1 items-end">' +
+            '<div class="w-full rounded-t-lg bg-gradient-to-t from-brand to-brand/55 transition-all duration-200 hover:from-brand-deep" style="height:' + h + '%"></div>' +
+            '</div>' +
+            '<span class="w-full truncate text-center text-[10px] text-muted">' + esc(p.name) + '</span>' +
+            '</div>';
+        }).join('');
+        $('#pac-chart-table').innerHTML = pacData.map((p) => '<tr><td>' + esc(p.name) + '</td><td>' + p.total + '</td></tr>').join('');
+      }
+
+      function renderRecentSurat() {
+        const latest = surat.slice().sort((a, b) => b.tanggal.localeCompare(a.tanggal)).slice(0, 5);
+        $('#recent-surat').innerHTML = latest.map((s) => {
+          const icon = s.jenis === 'masuk' ? 'ph-tray' : 'ph-paper-plane-tilt';
+          const tone = s.jenis === 'masuk' ? 'bg-brand-soft text-brand' : 'bg-info-soft text-info';
+          return '<li class="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-elevated/60">' +
+            '<span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg ' + tone + '"><i class="ph-light ' + icon + ' text-lg" aria-hidden="true"></i></span>' +
+            '<div class="min-w-0 flex-1">' +
+            '<p class="truncate text-sm font-semibold">' + esc(s.perihal) + '</p>' +
+            '<p class="truncate text-[11px] text-muted">' + esc(s.pihak) + ' · <span class="font-mono">' + esc(s.nomor) + '</span></p>' +
+            '</div>' +
+            '<div class="flex shrink-0 items-center gap-3">' +
+            '<span class="hidden text-[11px] text-muted sm:block">' + fmtDate(s.tanggal) + '</span>' +
+            statusBadge(s.status) +
+            '</div>' +
+            '</li>';
+        }).join('');
+      }
+
+      /* ============================ RENDER: SURAT ============================ */
+      function suratFiltered() {
+        const q = state.suratQuery.toLowerCase().trim();
+        return surat.filter((s) => s.jenis === state.suratTab)
+          .filter((s) => state.suratStatus === 'semua' || s.status === state.suratStatus)
+          .filter((s) => !q || (s.nomor + ' ' + s.perihal + ' ' + s.pihak).toLowerCase().indexOf(q) !== -1)
+          .sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+      }
+
+      function pagerHTML(key, total, page) {
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE[key]));
+        const prev = page > 1;
+        const next = page < pages;
+        return '<button class="icon-btn-sm disabled:cursor-not-allowed disabled:opacity-40" data-pager="' + key + '" data-page="' + (page - 1) + '"' + (prev ? '' : ' disabled') + ' aria-label="Halaman sebelumnya"><i class="ph-light ph-caret-left" aria-hidden="true"></i></button>' +
+          '<span class="px-2 font-mono text-xs text-muted">' + page + ' / ' + pages + '</span>' +
+          '<button class="icon-btn-sm disabled:cursor-not-allowed disabled:opacity-40" data-pager="' + key + '" data-page="' + (page + 1) + '"' + (next ? '' : ' disabled') + ' aria-label="Halaman berikutnya"><i class="ph-light ph-caret-right" aria-hidden="true"></i></button>';
+      }
+
+      function renderSurat() {
+        const data = suratFiltered();
+        const total = data.length;
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE.surat));
+        if (state.suratPage > pages) state.suratPage = pages;
+        const start = (state.suratPage - 1) * PAGE_SIZE.surat;
+        const rows = data.slice(start, start + PAGE_SIZE.surat);
+
+        if (!rows.length) {
+          $('#surat-tbody').innerHTML = '<tr><td colspan="7" class="px-4 py-12 text-center">' +
+            '<i class="ph-light ph-envelope-simple mx-auto block text-3xl text-muted" aria-hidden="true"></i>' +
+            '<p class="mt-2 text-sm font-semibold">Tidak ada surat yang cocok</p>' +
+            '<p class="text-xs text-muted">Coba ubah kata kunci atau filter status.</p>' +
+            '</td></tr>';
+        } else {
+          $('#surat-tbody').innerHTML = rows.map((s) => {
+            const hiddenPihak = s.jenis === 'masuk' ? 'Pengirim' : 'Tujuan';
+            return '<tr id="surat-' + s.id + '" class="transition-colors hover:bg-elevated/60">' +
+              '<td class="td w-10"><input type="checkbox" class="row-check h-4 w-4 cursor-pointer rounded border-line accent-[rgb(var(--brand))]" aria-label="Pilih surat ' + esc(s.nomor) + '" /></td>' +
+              '<td class="td"><span class="font-mono text-xs text-muted">' + esc(s.nomor) + '</span></td>' +
+              '<td class="td"><p class="font-semibold">' + esc(s.perihal) + '</p><p class="mt-0.5 text-[11px] text-muted lg:hidden">' + hiddenPihak + ': ' + esc(s.pihak) + '</p></td>' +
+              '<td class="td hidden text-muted lg:table-cell">' + esc(s.pihak) + '</td>' +
+              '<td class="td hidden whitespace-nowrap text-muted sm:table-cell">' + fmtDate(s.tanggal) + '</td>' +
+              '<td class="td">' + statusBadge(s.status) + '</td>' +
+              '<td class="td text-right"><div class="flex items-center justify-end gap-1">' +
+              '<button class="icon-btn-sm" data-detail-surat="' + s.id + '" aria-label="Lihat detail ' + esc(s.nomor) + '" title="Lihat detail"><i class="ph-light ph-eye" aria-hidden="true"></i></button>' +
+              '<button class="icon-btn-sm" data-download-surat="' + s.id + '" aria-label="Unduh ' + esc(s.nomor) + '" title="Unduh surat"><i class="ph-light ph-download-simple" aria-hidden="true"></i></button>' +
+              '</div></td>' +
+              '</tr>';
+          }).join('');
+        }
+
+        $('#surat-info').textContent = total === 0 ? 'Tidak ada hasil' : 'Menampilkan ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE.surat, total) + ' dari ' + total + ' surat';
+        $('#surat-pager').innerHTML = pagerHTML('surat', total, state.suratPage);
+
+        const masuk = surat.filter((s) => s.jenis === 'masuk').length;
+        const keluar = surat.filter((s) => s.jenis === 'keluar').length;
+        $('#count-masuk').textContent = masuk;
+        $('#count-keluar').textContent = keluar;
+
+        const pending = surat.filter((s) => s.status === 'Menunggu').length;
+        $('#nav-surat-badge').textContent = pending;
+        $('#nav-surat-badge').setAttribute('title', pending + ' surat menunggu disposisi');
+
+        $$('.tab-surat').forEach((btn) => {
+          const active = btn.dataset.suratTab === state.suratTab;
+          btn.setAttribute('aria-selected', String(active));
+          btn.className = 'tab-surat inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ' +
+            (active ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink');
+        });
+      }
+
+      /* ============================ RENDER: ANGGOTA ============================ */
+      function anggotaFiltered() {
+        const q = state.anggotaQuery.toLowerCase().trim();
+        return anggota.filter((a) => state.anggotaOrg === 'semua' || a.org === state.anggotaOrg)
+          .filter((a) => state.anggotaPac === 'semua' || a.pac === state.anggotaPac)
+          .filter((a) => state.anggotaStatus === 'semua' || a.status === state.anggotaStatus)
+          .filter((a) => !q || (a.nama + ' ' + a.nia + ' ' + a.pac).toLowerCase().indexOf(q) !== -1);
+      }
+
+      function renderAnggota() {
+        const data = anggotaFiltered();
+        const total = data.length;
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE.anggota));
+        if (state.anggotaPage > pages) state.anggotaPage = pages;
+        const start = (state.anggotaPage - 1) * PAGE_SIZE.anggota;
+        const rows = data.slice(start, start + PAGE_SIZE.anggota);
+
+        if (!rows.length) {
+          $('#anggota-tbody').innerHTML = '<tr><td colspan="7" class="px-4 py-12 text-center">' +
+            '<i class="ph-light ph-users mx-auto block text-3xl text-muted" aria-hidden="true"></i>' +
+            '<p class="mt-2 text-sm font-semibold">Anggota tidak ditemukan</p>' +
+            '<p class="text-xs text-muted">Coba kata kunci lain atau reset filter.</p>' +
+            '</td></tr>';
+        } else {
+          $('#anggota-tbody').innerHTML = rows.map((a) => {
+            const tone = a.org === 'IPNU' ? 'bg-brand-soft text-brand' : 'bg-info-soft text-info';
+            return '<tr id="anggota-' + a.id + '" class="transition-colors hover:bg-elevated/60">' +
+              '<td class="td w-10"><input type="checkbox" class="row-check h-4 w-4 cursor-pointer rounded border-line accent-[rgb(var(--brand))]" aria-label="Pilih ' + esc(a.nama) + '" /></td>' +
+              '<td class="td"><div class="flex items-center gap-3">' +
+              '<span class="grid h-9 w-9 shrink-0 place-items-center rounded-full ' + tone + ' font-mono text-[10px] font-bold">' + esc(initials(a.nama)) + '</span>' +
+              '<div class="min-w-0"><p class="truncate font-semibold">' + esc(a.nama) + '</p>' +
+              '<p class="text-[11px] text-muted">' + orgBadge(a.org) + ' <span class="md:hidden">· ' + esc(a.pac) + '</span></p></div>' +
+              '</div></td>' +
+              '<td class="td"><span class="font-mono text-xs text-muted">' + esc(a.nia) + '</span></td>' +
+              '<td class="td hidden text-muted md:table-cell">' + esc(a.pac) + '</td>' +
+              '<td class="td hidden sm:table-cell">' + jenjangBadge(a.jenjang) + '</td>' +
+              '<td class="td">' + statusBadge(a.status) + '</td>' +
+              '<td class="td text-right"><div class="flex items-center justify-end gap-1">' +
+              '<button class="icon-btn-sm" data-detail-anggota="' + a.id + '" aria-label="Lihat detail ' + esc(a.nama) + '" title="Lihat detail"><i class="ph-light ph-eye" aria-hidden="true"></i></button>' +
+              '<button class="icon-btn-sm" data-edit-anggota="' + a.id + '" aria-label="Ubah data ' + esc(a.nama) + '" title="Ubah data"><i class="ph-light ph-pencil-simple" aria-hidden="true"></i></button>' +
+              '</div></td>' +
+              '</tr>';
+          }).join('');
+        }
+
+        $('#anggota-info').textContent = total === 0 ? 'Tidak ada hasil' : 'Menampilkan ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE.anggota, total) + ' dari ' + total + ' anggota';
+        $('#anggota-info-top').textContent = total + ' anggota';
+        $('#anggota-pager').innerHTML = pagerHTML('anggota', total, state.anggotaPage);
+        $('#nav-anggota-badge').textContent = '4.812';
+
+        $$('[data-anggota-org]').forEach((btn) => {
+          const active = btn.dataset.anggotaOrg === state.anggotaOrg;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-pressed', String(active));
+        });
+      }
+
+      /* ============================ RENDER: PROGRAM ============================ */
+      function renderPrograms() {
+        $('#program-grid').innerHTML = programs.map((p) => {
+          const pct = Math.min(100, Math.round((p.peserta / p.kuota) * 100));
+          return '<article data-reveal class="card card-lift p-5">' +
+            '<div class="flex items-start justify-between gap-3">' +
+            '<div class="flex min-w-0 items-center gap-3">' +
+            '<span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand"><i class="ph-light ph-graduation-cap text-xl" aria-hidden="true"></i></span>' +
+            '<div class="min-w-0"><h3 class="truncate text-sm font-bold">' + esc(p.nama) + '</h3>' +
+            '<p class="text-[11px] text-muted">Jenjang ' + esc(p.level) + ' · ' + fmtLongDate(p.tanggal) + '</p></div>' +
+            '</div>' + statusBadge(p.status) +
+            '</div>' +
+            '<div class="mt-4 flex items-center justify-between text-xs">' +
+            '<span class="text-muted">Peserta terdaftar</span>' +
+            '<span class="font-mono font-semibold tabular-nums">' + p.peserta + ' / ' + p.kuota + '</span>' +
+            '</div>' +
+            '<div class="mt-2 h-2 overflow-hidden rounded-full bg-elevated"><div class="h-2 rounded-full bg-brand" style="width:' + pct + '%"></div></div>' +
+            '<div class="mt-1 flex justify-between text-[11px] text-muted"><span>' + pct + '% terisi</span><span>' + (p.kuota - p.peserta) + ' kursi tersisa</span></div>' +
+            '<div class="mt-4 flex items-center gap-2">' +
+            '<button class="btn-secondary btn-sm flex-1" data-program-detail="' + p.id + '">Detail</button>' +
+            '<button class="btn-primary btn-sm flex-1" data-program-kelola="' + p.id + '">Kelola</button>' +
+            '</div>' +
+            '</article>';
+        }).join('');
+      }
+
+      /* ============================ ROUTING ============================ */
+      const ROUTES = {
+        ringkasan: 'Ringkasan Organisasi',
+        persuratan: 'Persuratan',
+        anggota: 'Data Anggota',
+        kaderisasi: 'Kaderisasi'
+      };
+
+      function navigate(route, silent) {
+        if (!ROUTES[route]) route = 'ringkasan';
+        state.route = route;
+        $$('[data-view]').forEach((view) => view.classList.toggle('hidden', view.dataset.view !== route));
+        $$('[data-route]').forEach((link) => {
+          const active = link.dataset.route === route;
+          link.classList.toggle('is-active', active);
+          if (active) link.setAttribute('aria-current', 'page');
+          else link.removeAttribute('aria-current');
+        });
+        $('#page-title').textContent = ROUTES[route];
+        document.title = ROUTES[route] + ' · EDO v2 Trenggalek';
+        closeDrawer();
+        closeSearch();
+        if (!silent) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const main = $('#main');
+          if (main) main.focus({ preventScroll: true });
+        }
+        if (typeof initReveals === 'function') initReveals();
+      }
+
+      function routeFromHash() {
+        const hash = (location.hash || '').replace('#', '');
+        navigate(ROUTES[hash] ? hash : 'ringkasan', true);
+      }
+
+      /* ============================ DRAWER ============================ */
+      const sidebar = $('#sidebar');
+      const overlay = $('#overlay');
+      const menuBtn = $('#menu-btn');
+
+      function openDrawer() {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        menuBtn.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('overflow-hidden');
+      }
+      function closeDrawer() {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        if (!document.querySelector('[data-open="true"]')) document.body.classList.remove('overflow-hidden');
+      }
+
+      menuBtn.addEventListener('click', openDrawer);
+      $('#close-drawer').addEventListener('click', closeDrawer);
+      overlay.addEventListener('click', closeDrawer);
+      $$('[data-route]').forEach((link) => link.addEventListener('click', closeDrawer));
+
+      /* ============================ TEMA ============================ */
+      const themeBtn = $('#theme-toggle');
+      function syncThemeButton() {
+        const dark = document.documentElement.classList.contains('dark');
+        themeBtn.setAttribute('aria-pressed', String(dark));
+        themeBtn.setAttribute('aria-label', dark ? 'Aktifkan tema terang' : 'Aktifkan tema gelap');
+      }
+      themeBtn.addEventListener('click', () => {
+        const dark = document.documentElement.classList.toggle('dark');
+        try { localStorage.setItem('nu-theme', dark ? 'dark' : 'light'); } catch (e) { /* noop */ }
+        syncThemeButton();
+      });
+      syncThemeButton();
+
+      /* ============================ DROPDOWN ============================ */
+      function closeAllMenus(except) {
+        [['notif-menu', 'notif-btn'], ['user-menu', 'user-btn'], ['search-results', 'global-search']].forEach(([menuId, btnId]) => {
+          if (menuId === except) return;
+          $('#' + menuId).classList.add('hidden');
+          $('#' + btnId).setAttribute('aria-expanded', 'false');
+        });
+      }
+
+      $('#notif-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = $('#notif-menu');
+        const willOpen = menu.classList.contains('hidden');
+        closeAllMenus('notif-menu');
+        menu.classList.toggle('hidden', !willOpen);
+        $('#notif-btn').setAttribute('aria-expanded', String(willOpen));
+      });
+
+      $('#user-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = $('#user-menu');
+        const willOpen = menu.classList.contains('hidden');
+        closeAllMenus('user-menu');
+        menu.classList.toggle('hidden', !willOpen);
+        $('#user-btn').setAttribute('aria-expanded', String(willOpen));
+      });
+
+      $('#notif-read').addEventListener('click', () => {
+        $('#notif-dot').classList.add('hidden');
+        $('#notif-btn').setAttribute('aria-label', 'Notifikasi, tidak ada yang belum dibaca');
+        toast('Semua notifikasi ditandai sudah dibaca.', 'info');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#notif-menu') && !e.target.closest('#notif-btn') &&
+            !e.target.closest('#user-menu') && !e.target.closest('#user-btn')) {
+          closeAllMenus();
+        }
+        if (!e.target.closest('#global-search') && !e.target.closest('#search-results')) closeSearch();
+      });
+
+      /* ============================ PENCARIAN GLOBAL ============================ */
+      const searchInput = $('#global-search');
+      const searchResults = $('#search-results');
+
+      function closeSearch() {
+        searchResults.classList.add('hidden');
+        searchInput.setAttribute('aria-expanded', 'false');
+      }
+
+      function findMatches(q) {
+        const term = q.toLowerCase().trim();
+        if (!term) return [];
+        const results = [];
+        surat.forEach((s) => {
+          if ((s.nomor + ' ' + s.perihal + ' ' + s.pihak).toLowerCase().indexOf(term) !== -1) {
+            results.push({ route: 'persuratan', query: s.perihal, icon: 'ph-envelope-simple', type: s.jenis === 'masuk' ? 'Surat Masuk' : 'Surat Keluar', title: s.perihal, meta: s.nomor });
+          }
+        });
+        anggota.forEach((a) => {
+          if ((a.nama + ' ' + a.nia + ' ' + a.pac).toLowerCase().indexOf(term) !== -1) {
+            results.push({ route: 'anggota', query: a.nama, icon: 'ph-user', type: 'Anggota · ' + a.org, title: a.nama, meta: a.nia + ' · PAC ' + a.pac });
+          }
+        });
+        return results.slice(0, 6);
+      }
+
+      function renderSearch() {
+        const q = searchInput.value.trim();
+        if (!q) { closeSearch(); return; }
+        const items = findMatches(q);
+        if (!items.length) {
+          searchResults.innerHTML = '<p class="px-3 py-4 text-center text-xs text-muted">Tidak ada hasil untuk “' + esc(q) + '”.</p>';
+        } else {
+          searchResults.innerHTML = '<p class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted">' + items.length + ' hasil</p>' +
+            items.map((item, i) => '<button class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-elevated focus:bg-elevated" data-search-route="' + item.route + '" data-search-query="' + esc(item.query) + '" data-index="' + i + '">' +
+              '<span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-elevated text-muted"><i class="ph-light ' + item.icon + '" aria-hidden="true"></i></span>' +
+              '<span class="min-w-0 flex-1"><span class="block truncate text-xs font-semibold">' + esc(item.title) + '</span>' +
+              '<span class="block truncate text-[11px] text-muted">' + esc(item.meta) + '</span></span>' +
+              '<span class="shrink-0 rounded-md bg-elevated px-1.5 py-0.5 text-[10px] font-semibold text-muted">' + esc(item.type) + '</span>' +
+              '</button>').join('');
+        }
+        searchResults.classList.remove('hidden');
+        searchInput.setAttribute('aria-expanded', 'true');
+      }
+
+      searchInput.addEventListener('input', renderSearch);
+      searchInput.addEventListener('focus', () => { if (searchInput.value.trim()) renderSearch(); });
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { closeSearch(); searchInput.blur(); }
+        if (e.key === 'Enter') {
+          const first = searchResults.querySelector('[data-search-route]');
+          if (first) first.click();
+        }
+      });
+      searchResults.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-search-route]');
+        if (!btn) return;
+        const route = btn.dataset.searchRoute;
+        const query = btn.dataset.searchQuery;
+        if (route === 'persuratan') {
+          state.suratQuery = query;
+          state.suratStatus = 'semua';
+          state.suratPage = 1;
+          $('#filter-surat-q').value = query;
+          $('#filter-surat-status').value = 'semua';
+          renderSurat();
+        } else {
+          state.anggotaQuery = query;
+          state.anggotaOrg = 'semua';
+          state.anggotaPac = 'semua';
+          state.anggotaStatus = 'semua';
+          state.anggotaPage = 1;
+          $('#filter-anggota-q').value = query;
+          $('#filter-anggota-pac').value = 'semua';
+          $('#filter-anggota-status').value = 'semua';
+          renderAnggota();
+        }
+        searchInput.value = '';
+        closeSearch();
+        location.hash = route;
+        navigate(route);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+        if (e.key === 'Escape') {
+          closeSearch();
+          closeAllMenus();
+        }
+      });
+
+      /* ============================ FILTER PERSURATAN ============================ */
+      $$('.tab-surat').forEach((btn) => btn.addEventListener('click', () => {
+        state.suratTab = btn.dataset.suratTab;
+        state.suratPage = 1;
+        renderSurat();
+      }));
+
+      $('#filter-surat-q').addEventListener('input', (e) => {
+        state.suratQuery = e.target.value;
+        state.suratPage = 1;
+        renderSurat();
+      });
+      $('#filter-surat-status').addEventListener('change', (e) => {
+        state.suratStatus = e.target.value;
+        state.suratPage = 1;
+        renderSurat();
+      });
+      $('#reset-surat').addEventListener('click', () => {
+        state.suratQuery = '';
+        state.suratStatus = 'semua';
+        state.suratPage = 1;
+        $('#filter-surat-q').value = '';
+        $('#filter-surat-status').value = 'semua';
+        renderSurat();
+        toast('Filter persuratan direset.', 'info');
+      });
+
+      /* ============================ FILTER ANGGOTA ============================ */
+      $$('[data-anggota-org]').forEach((btn) => btn.addEventListener('click', () => {
+        state.anggotaOrg = btn.dataset.anggotaOrg;
+        state.anggotaPage = 1;
+        renderAnggota();
+      }));
+
+      $('#filter-anggota-q').addEventListener('input', (e) => {
+        state.anggotaQuery = e.target.value;
+        state.anggotaPage = 1;
+        renderAnggota();
+      });
+      $('#filter-anggota-pac').addEventListener('change', (e) => {
+        state.anggotaPac = e.target.value;
+        state.anggotaPage = 1;
+        renderAnggota();
+      });
+      $('#filter-anggota-status').addEventListener('change', (e) => {
+        state.anggotaStatus = e.target.value;
+        state.anggotaPage = 1;
+        renderAnggota();
+      });
+      $('#reset-anggota').addEventListener('click', () => {
+        state.anggotaQuery = '';
+        state.anggotaPac = 'semua';
+        state.anggotaStatus = 'semua';
+        state.anggotaOrg = 'semua';
+        state.anggotaPage = 1;
+        $('#filter-anggota-q').value = '';
+        $('#filter-anggota-pac').value = 'semua';
+        $('#filter-anggota-status').value = 'semua';
+        renderAnggota();
+        toast('Filter anggota direset.', 'info');
+      });
+
+      /* ============================ PAGINATION ============================ */
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-pager]');
+        if (!btn || btn.disabled) return;
+        const key = btn.dataset.pager;
+        const page = parseInt(btn.dataset.page, 10);
+        if (key === 'surat') {
+          state.suratPage = Math.max(1, page);
+          renderSurat();
+        } else {
+          state.anggotaPage = Math.max(1, page);
+          renderAnggota();
+        }
+      });
+
+      /* ============================ SELECT ALL ============================ */
+      function bindSelectAll(masterId) {
+        const master = document.getElementById(masterId);
+        if (!master) return;
+        master.addEventListener('change', () => {
+          const scope = master.closest('table');
+          $$('.row-check', scope).forEach((cb) => { cb.checked = master.checked; });
+        });
+      }
+      bindSelectAll('select-all-surat');
+      bindSelectAll('select-all-anggota');
+
+      /* ============================ MODAL ENGINE ============================ */
+      let lastFocused = null;
+
+      function openModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        lastFocused = document.activeElement;
+        closeAllMenus();
+        modal.classList.remove('hidden');
+        modal.dataset.open = 'true';
+        document.body.classList.add('overflow-hidden');
+        const first = modal.querySelector('form input:not([type="hidden"]), form select, form textarea')
+          || modal.querySelector('input:not([type="hidden"]), select, textarea, button');
+        setTimeout(() => { if (first) first.focus(); }, 80);
+      }
+
+      function closeModal(modal) {
+        if (!modal) return;
+        modal.classList.add('hidden');
+        delete modal.dataset.open;
+        document.body.classList.remove('overflow-hidden');
+        if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+        lastFocused = null;
+      }
+
+      document.addEventListener('click', (e) => {
+        const opener = e.target.closest('[data-open]');
+        if (opener) { openModal(opener.dataset.open); return; }
+        const closer = e.target.closest('[data-close]');
+        if (closer) { closeModal(document.getElementById(closer.dataset.close)); return; }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        const open = document.querySelector('[data-open="true"]');
+        if (!open) return;
+        if (e.key === 'Escape') { e.preventDefault(); closeModal(open); }
+        if (e.key === 'Tab') {
+          const focusables = $$('button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled])', open)
+            .filter((el) => el.offsetParent !== null);
+          if (!focusables.length) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-detail-surat]')) {
+          const s = surat.find((x) => x.id === e.target.closest('[data-detail-surat]').dataset.detailSurat);
+          if (s) openSuratDetail(s);
+        }
+        if (e.target.closest('[data-download-surat]')) {
+          const s = surat.find((x) => x.id === e.target.closest('[data-download-surat]').dataset.downloadSurat);
+          if (s) downloadSurat(s);
+        }
+        if (e.target.closest('[data-detail-anggota]')) {
+          const a = anggota.find((x) => x.id === e.target.closest('[data-detail-anggota]').dataset.detailAnggota);
+          if (a) openAnggotaDetail(a);
+        }
+        if (e.target.closest('[data-edit-anggota]')) {
+          toast('Form ubah anggota belum tersedia pada prototipe.', 'info');
+        }
+        if (e.target.closest('[data-program-detail]')) {
+          const p = programs.find((x) => x.id === e.target.closest('[data-program-detail]').dataset.programDetail);
+          if (p) openProgramDetail(p);
+        }
+        if (e.target.closest('[data-program-kelola]')) {
+          const p = programs.find((x) => x.id === e.target.closest('[data-program-kelola]').dataset.programKelola);
+          if (p) toast('Kelola peserta “' + p.nama + '” belum tersedia pada prototipe.', 'info');
+        }
+        const toastBtn = e.target.closest('[data-toast]');
+        if (toastBtn) toast(toastBtn.dataset.toast, 'info');
+      });
+
+      function openDetail(title, sub, body) {
+        $('#modal-detail-title').textContent = title;
+        $('#modal-detail-sub').textContent = sub || '';
+        $('#modal-detail-body').innerHTML = body;
+        openModal('modal-detail');
+      }
+
+      function openSuratDetail(s) {
+        const rows = [
+          ['Jenis', s.jenis === 'masuk' ? 'Surat Masuk' : 'Surat Keluar'],
+          ['Nomor', s.nomor],
+          ['Perihal', s.perihal],
+          ['Asal / Tujuan', s.pihak],
+          ['Tanggal', fmtLongDate(s.tanggal)],
+          ['Status', s.status]
+        ];
+        openDetail(s.perihal, s.nomor,
+          '<dl class="space-y-3">' + rows.map(([k, v]) =>
+            '<div class="flex items-start justify-between gap-4 border-b border-line pb-2 last:border-0">' +
+            '<dt class="text-xs font-semibold text-muted">' + esc(k) + '</dt>' +
+            '<dd class="text-right text-xs font-medium">' + esc(v) + '</dd></div>').join('') +
+          '</dl>' +
+          '<button class="btn-primary mt-4 w-full" data-download-surat="' + s.id + '"><i class="ph-light ph-download-simple" aria-hidden="true"></i> Unduh surat (.txt)</button>');
+      }
+
+      function openAnggotaDetail(a) {
+        const rows = [
+          ['NIA', a.nia],
+          ['Organisasi', a.org],
+          ['PAC', a.pac],
+          ['Jenjang', a.jenjang],
+          ['Status', a.status],
+          ['Tahun gabung', String(a.joined)]
+        ];
+        openDetail(a.nama, 'Anggota ' + a.org + ' · PAC ' + a.pac,
+          '<dl class="space-y-3">' + rows.map(([k, v]) =>
+            '<div class="flex items-start justify-between gap-4 border-b border-line pb-2 last:border-0">' +
+            '<dt class="text-xs font-semibold text-muted">' + esc(k) + '</dt>' +
+            '<dd class="text-right text-xs font-medium">' + esc(v) + '</dd></div>').join('') +
+          '</dl>');
+      }
+
+      function openProgramDetail(p) {
+        const pct = Math.round((p.peserta / p.kuota) * 100);
+        const rows = [
+          ['Jenjang', p.level],
+          ['Tanggal', fmtLongDate(p.tanggal)],
+          ['Peserta', p.peserta + ' / ' + p.kuota + ' (' + pct + '%)'],
+          ['Sisa kursi', String(p.kuota - p.peserta)],
+          ['Status', p.status]
+        ];
+        openDetail(p.nama, 'Program kaderisasi',
+          '<dl class="space-y-3">' + rows.map(([k, v]) =>
+            '<div class="flex items-start justify-between gap-4 border-b border-line pb-2 last:border-0">' +
+            '<dt class="text-xs font-semibold text-muted">' + esc(k) + '</dt>' +
+            '<dd class="text-right text-xs font-medium">' + esc(v) + '</dd></div>').join('') +
+          '</dl>');
+      }
+
+      function downloadSurat(s) {
+        const text = [
+          'PC IPNU & IPPNU KABUPATEN TRENGGALEK',
+          '----------------------------------------',
+          'Jenis   : ' + (s.jenis === 'masuk' ? 'Surat Masuk' : 'Surat Keluar'),
+          'Nomor   : ' + s.nomor,
+          'Perihal : ' + s.perihal,
+          'Pihak   : ' + s.pihak,
+          'Tanggal : ' + fmtLongDate(s.tanggal),
+          'Status  : ' + s.status,
+          '',
+          'Dokumen ini dihasilkan dari prototipe dashboard.'
+        ].join('\n');
+        downloadFile(s.nomor.replace(/[\\/]/g, '-') + '.txt', text);
+        toast('Surat diunduh sebagai file teks.');
+      }
+
+      /* ============================ FORM: SURAT ============================ */
+      $('#form-surat').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const item = {
+          id: 's' + Date.now(),
+          jenis: data.get('jenis'),
+          nomor: String(data.get('nomor')).trim(),
+          perihal: String(data.get('perihal')).trim(),
+          pihak: String(data.get('pihak')).trim(),
+          tanggal: data.get('tanggal'),
+          status: data.get('status')
+        };
+        surat.push(item);
+        state.suratTab = item.jenis;
+        state.suratQuery = '';
+        state.suratStatus = 'semua';
+        state.suratPage = 1;
+        $('#filter-surat-q').value = '';
+        $('#filter-surat-status').value = 'semua';
+        renderSurat();
+        renderRecentSurat();
+        closeModal($('#modal-surat'));
+        e.target.reset();
+        location.hash = 'persuratan';
+        navigate('persuratan');
+        toast('Surat “' + item.perihal + '” berhasil disimpan.');
+      });
+
+      /* ============================ FORM: ANGGOTA ============================ */
+      $('#form-anggota').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const item = {
+          id: 'a' + Date.now(),
+          nama: String(data.get('nama')).trim(),
+          nia: String(data.get('nia')).trim(),
+          org: data.get('org'),
+          pac: data.get('pac'),
+          status: data.get('status'),
+          jenjang: data.get('jenjang'),
+          joined: parseInt(data.get('joined'), 10)
+        };
+        anggota.unshift(item);
+        state.anggotaQuery = '';
+        state.anggotaOrg = 'semua';
+        state.anggotaPac = 'semua';
+        state.anggotaStatus = 'semua';
+        state.anggotaPage = 1;
+        $('#filter-anggota-q').value = '';
+        $('#filter-anggota-pac').value = 'semua';
+        $('#filter-anggota-status').value = 'semua';
+        renderAnggota();
+        closeModal($('#modal-anggota'));
+        e.target.reset();
+        location.hash = 'anggota';
+        navigate('anggota');
+        toast('Anggota “' + item.nama + '” berhasil ditambahkan.');
+      });
+
+      /* ============================ FORM: PROGRAM ============================ */
+      $('#form-program').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const item = {
+          id: 'p' + Date.now(),
+          nama: String(data.get('nama')).trim(),
+          level: data.get('level'),
+          peserta: 0,
+          kuota: parseInt(data.get('kuota'), 10),
+          tanggal: data.get('tanggal'),
+          status: data.get('status')
+        };
+        programs.push(item);
+        renderPrograms();
+        initReveals();
+        closeModal($('#modal-program'));
+        e.target.reset();
+        toast('Program “' + item.nama + '” berhasil dibuat.');
+      });
+
+      /* ============================ EXPORT ============================ */
+      $('#export-overview').addEventListener('click', () => {
+        downloadCSV('ringkasan-pc-ipnu-ippnu-trenggalek.csv', [
+          ['Metrik', 'Nilai'],
+          ['Surat Masuk (Nov 2026)', 128],
+          ['Surat Keluar (Nov 2026)', 96],
+          ['Anggota Aktif', 4812],
+          ['Kader Aktif', 862],
+          ['Program Kaderisasi Berjalan', 3]
+        ]);
+        toast('Ringkasan diekspor sebagai CSV.');
+      });
+
+      $('#export-surat').addEventListener('click', () => {
+        const rows = [['Jenis', 'Nomor', 'Perihal', 'Asal/Tujuan', 'Tanggal', 'Status']];
+        suratFiltered().forEach((s) => rows.push([s.jenis, s.nomor, s.perihal, s.pihak, s.tanggal, s.status]));
+        downloadCSV('arsip-surat-' + state.suratTab + '.csv', rows);
+        toast('Arsip surat diekspor sebagai CSV.');
+      });
+
+      $('#export-anggota').addEventListener('click', () => {
+        const rows = [['Nama', 'NIA', 'Organisasi', 'PAC', 'Jenjang', 'Status', 'Tahun Gabung']];
+        anggotaFiltered().forEach((a) => rows.push([a.nama, a.nia, a.org, a.pac, a.jenjang, a.status, a.joined]));
+        downloadCSV('data-anggota.csv', rows);
+        toast('Data anggota diekspor sebagai CSV.');
+      });
+
+      /* ============================ INIT ============================ */
+      function initSelects() {
+        const pacOptions = PAC_LIST.map((p) => '<option value="' + p + '">' + p + '</option>').join('');
+        $('#filter-anggota-pac').insertAdjacentHTML('beforeend', pacOptions);
+        $('#anggota-pac').innerHTML = pacOptions;
+        const today = new Date().toISOString().slice(0, 10);
+        $('#surat-tanggal').value = today;
+        $('#program-tanggal').value = today;
+        $('#anggota-joined').value = new Date().getFullYear();
+      }
+
+      /* ============================ SCROLL REVEAL ============================ */
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const revealObserver = 'IntersectionObserver' in window
+        ? new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                revealObserver.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.08, rootMargin: '0px 0px -48px 0px' })
+        : null;
+
+      function initReveals() {
+        $$('[data-reveal]:not(.is-in)').forEach(function (el) {
+          if (prefersReducedMotion.matches || !revealObserver) {
+            el.classList.add('is-in');
+            return;
+          }
+          const siblings = Array.prototype.filter.call(el.parentElement.children, function (c) {
+            return c.hasAttribute('data-reveal');
+          });
+          const index = siblings.indexOf(el);
+          el.style.transitionDelay = index > 0 ? Math.min(index * 55, 330) + 'ms' : '0ms';
+          revealObserver.observe(el);
+        });
+      }
+
+      function syncSearchPlaceholder() {
+        searchInput.placeholder = window.innerWidth < 640 ? 'Cari…' : 'Cari surat, anggota…';
+      }
+
+      function init() {
+        initSelects();
+        syncSearchPlaceholder();
+        renderPacChart();
+        renderRecentSurat();
+        renderSurat();
+        renderAnggota();
+        renderPrograms();
+        routeFromHash();
+        initReveals();
+      }
+
+      window.addEventListener('hashchange', routeFromHash);
+      window.addEventListener('resize', () => {
+        syncSearchPlaceholder();
+        if (window.innerWidth >= 1024) {
+          overlay.classList.add('hidden');
+          sidebar.classList.remove('-translate-x-full');
+          document.body.classList.remove('overflow-hidden');
+        } else {
+          sidebar.classList.add('-translate-x-full');
+        }
+      });
+
+      init();
+    })();
+  </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @source '../js/**/*.vue';
+@source '../js/**/*.js';
 @source '../views/**/*.blade.php';
 
 @custom-variant dark (&:where(.dark, .dark *));

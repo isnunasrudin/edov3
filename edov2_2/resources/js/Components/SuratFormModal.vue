@@ -1,55 +1,71 @@
 <script setup>
-import { reactive, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import BaseModal from './BaseModal.vue';
-import { addSurat } from '@/stores/dashboard';
+import SearchSelect from './SearchSelect.vue';
+import { dashboard, addSurat, updateSurat } from '@/stores/dashboard';
 import { showToast } from '@/composables/useToast';
 import { todayISO } from '@/utils/format';
 
 const props = defineProps({
     open: { type: Boolean, default: false },
+    item: { type: Object, default: null },
 });
 
 const emit = defineEmits(['close', 'saved']);
 
-const form = reactive({
+const pimpinanOptions = computed(() =>
+    dashboard.pimpinan.map((item) => ({
+        value: item.id,
+        label: item.nama,
+        description: `${item.level} · ${item.org} · ${item.region}`,
+    })),
+);
+
+const defaults = () => ({
     jenis: 'masuk',
     status: 'Menunggu',
     nomor: '',
     perihal: '',
     pihak: '',
     tanggal: todayISO(),
+    pimpinanId: null,
 });
 
-function reset() {
-    Object.assign(form, {
-        jenis: 'masuk',
-        status: 'Menunggu',
-        nomor: '',
-        perihal: '',
-        pihak: '',
-        tanggal: todayISO(),
-    });
+const form = reactive(defaults());
+
+function populate() {
+    Object.assign(form, defaults(), props.item ?? {});
 }
 
 watch(
     () => props.open,
     (open) => {
-        if (open) reset();
+        if (open) populate();
     },
 );
 
 function submit() {
-    const item = addSurat({
+    const payload = {
         jenis: form.jenis,
         status: form.status,
         nomor: form.nomor.trim(),
         perihal: form.perihal.trim(),
         pihak: form.pihak.trim(),
         tanggal: form.tanggal,
-    });
+        pimpinanId: form.pimpinanId,
+    };
 
-    showToast(`Surat “${item.perihal}” berhasil disimpan.`);
-    emit('saved', item);
+    const saved = props.item
+        ? updateSurat(props.item.id, payload)
+        : addSurat(payload);
+
+    showToast(
+        props.item
+            ? `Surat “${saved.perihal}” berhasil diperbarui.`
+            : `Surat “${saved.perihal}” berhasil disimpan.`,
+    );
+
+    emit('saved', saved);
     emit('close');
 }
 </script>
@@ -57,8 +73,8 @@ function submit() {
 <template>
     <BaseModal
         :open="open"
-        title="Buat Surat Baru"
-        subtitle="Catat surat masuk atau keluar ke arsip digital."
+        :title="item ? 'Ubah Surat' : 'Buat Surat Baru'"
+        :subtitle="item ? 'Perbarui data arsip surat.' : 'Catat surat masuk atau keluar ke arsip digital.'"
         @close="$emit('close')"
     >
         <form class="space-y-4 p-5" @submit.prevent="submit">
@@ -137,6 +153,15 @@ function submit() {
                 </div>
             </div>
 
+            <SearchSelect
+                id="surat-pimpinan"
+                v-model="form.pimpinanId"
+                label="Pimpinan terkait"
+                :options="pimpinanOptions"
+                placeholder="Tidak terkait pimpinan"
+                search-placeholder="Cari pimpinan…"
+            />
+
             <p class="flex items-start gap-2 rounded-xl bg-elevated p-3 text-[11px] leading-relaxed text-muted">
                 <i class="ph-light ph-info mt-0.5 text-base" aria-hidden="true"></i>
                 Data akan tersimpan di sesi prototipe ini dan langsung muncul pada tabel persuratan.
@@ -145,7 +170,7 @@ function submit() {
             <div class="flex items-center justify-end gap-2 pt-1">
                 <button type="button" class="btn-secondary" @click="$emit('close')">Batal</button>
                 <button type="submit" class="btn-primary group">
-                    <span>Simpan Surat</span>
+                    <span>{{ item ? 'Simpan Perubahan' : 'Simpan Surat' }}</span>
                     <span class="btn-trail" aria-hidden="true">
                         <i class="ph-light ph-check text-sm"></i>
                     </span>

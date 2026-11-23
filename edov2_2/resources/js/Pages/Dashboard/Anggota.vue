@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import OrgBadge from '@/Components/OrgBadge.vue';
@@ -9,9 +9,9 @@ import StatusBadge from '@/Components/StatusBadge.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import AnggotaFormModal from '@/Components/AnggotaFormModal.vue';
-import DetailModal from '@/Components/DetailModal.vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 import { PAC_LIST } from '@/data/dashboard';
-import { dashboard, totalAnggota } from '@/stores/dashboard';
+import { dashboard, totalAnggota, deleteAnggota } from '@/stores/dashboard';
 import { downloadCSV } from '@/utils/export';
 import { showToast } from '@/composables/useToast';
 import { formatNumber, initials, readQuery } from '@/utils/format';
@@ -27,7 +27,7 @@ const currentPage = ref(1);
 const pageSize = 8;
 
 const anggotaModalOpen = ref(false);
-const selectedAnggota = ref(null);
+const deletingAnggota = ref(null);
 const selectedIds = ref([]);
 
 watch(
@@ -84,21 +84,6 @@ const allSelected = computed({
     },
 });
 
-const detailRows = computed(() => {
-    if (!selectedAnggota.value) return [];
-
-    const item = selectedAnggota.value;
-
-    return [
-        { label: 'NIA', value: item.nia },
-        { label: 'Organisasi', value: item.org },
-        { label: 'PAC', value: item.pac },
-        { label: 'Jenjang', value: item.jenjang },
-        { label: 'Status', value: item.status },
-        { label: 'Tahun gabung', value: String(item.joined) },
-    ];
-});
-
 const showingFrom = computed(() =>
     filtered.value.length === 0 ? 0 : (currentPage.value - 1) * pageSize + 1,
 );
@@ -126,6 +111,18 @@ function exportAnggota() {
     showToast('Data anggota diekspor sebagai CSV.');
 }
 
+function openCreate() {
+    anggotaModalOpen.value = true;
+}
+
+function confirmDelete() {
+    if (!deletingAnggota.value) return;
+
+    deleteAnggota(deletingAnggota.value.id);
+    deletingAnggota.value = null;
+    showToast('Anggota dan relasinya berhasil dihapus.', 'success');
+}
+
 function onSaved() {
     query.value = '';
     pac.value = 'semua';
@@ -150,7 +147,7 @@ function onSaved() {
                 <i class="ph-light ph-download-simple text-base" aria-hidden="true"></i>
                 Ekspor CSV
             </button>
-            <button class="btn-primary group" @click="anggotaModalOpen = true">
+            <button class="btn-primary group" @click="openCreate">
                 <span>Tambah Anggota</span>
                 <span class="btn-trail" aria-hidden="true">
                     <i class="ph-light ph-user-plus text-sm"></i>
@@ -283,7 +280,7 @@ function onSaved() {
                                         {{ initials(item.nama) }}
                                     </span>
                                     <div class="min-w-0">
-                                        <p class="truncate font-semibold">{{ item.nama }}</p>
+                                        <Link :href="`/dashboard/anggota/${item.id}`" class="truncate font-semibold hover:text-brand">{{ item.nama }}</Link>
                                         <p class="text-[11px] text-muted">
                                             <OrgBadge :org="item.org" />
                                             <span class="md:hidden"> · {{ item.pac }}</span>
@@ -301,21 +298,21 @@ function onSaved() {
                             <td class="td"><StatusBadge :status="item.status" /></td>
                             <td class="td text-right">
                                 <div class="flex items-center justify-end gap-1">
-                                    <button
+                                    <Link
+                                        :href="`/dashboard/anggota/${item.id}`"
                                         class="icon-btn-sm"
                                         :aria-label="`Lihat detail ${item.nama}`"
                                         title="Lihat detail"
-                                        @click="selectedAnggota = item"
                                     >
                                         <i class="ph-light ph-eye" aria-hidden="true"></i>
-                                    </button>
+                                    </Link>
                                     <button
-                                        class="icon-btn-sm"
-                                        :aria-label="`Ubah data ${item.nama}`"
-                                        title="Ubah data"
-                                        @click="showToast('Form ubah anggota belum tersedia pada prototipe.', 'info')"
+                                        class="icon-btn-sm hover:text-danger"
+                                        :aria-label="`Hapus ${item.nama}`"
+                                        title="Hapus anggota"
+                                        @click="deletingAnggota = item"
                                     >
-                                        <i class="ph-light ph-pencil-simple" aria-hidden="true"></i>
+                                        <i class="ph-light ph-trash" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </td>
@@ -352,15 +349,18 @@ function onSaved() {
 
     <AnggotaFormModal
         :open="anggotaModalOpen"
+        :item="null"
         @close="anggotaModalOpen = false"
         @saved="onSaved"
     />
 
-    <DetailModal
-        :open="!!selectedAnggota"
-        :title="selectedAnggota?.nama ?? 'Detail Anggota'"
-        :subtitle="selectedAnggota ? `Anggota ${selectedAnggota.org} · PAC ${selectedAnggota.pac}` : ''"
-        :rows="detailRows"
-        @close="selectedAnggota = null"
+    <ConfirmModal
+        :open="!!deletingAnggota"
+        title="Hapus anggota?"
+        :message="`Anggota “${deletingAnggota?.nama ?? ''}” beserta pendidikan dan jabatannya akan dihapus.`"
+        confirm-label="Hapus anggota"
+        @close="deletingAnggota = null"
+        @confirm="confirmDelete"
     />
+
 </template>

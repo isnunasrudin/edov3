@@ -8,7 +8,8 @@ import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SuratFormModal from '@/Components/SuratFormModal.vue';
 import DetailModal from '@/Components/DetailModal.vue';
-import { dashboard } from '@/stores/dashboard';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
+import { dashboard, deleteSurat } from '@/stores/dashboard';
 import { downloadCSV, downloadSurat } from '@/utils/export';
 import { showToast } from '@/composables/useToast';
 import { formatDate, formatLongDate, readQuery } from '@/utils/format';
@@ -24,6 +25,8 @@ const currentPage = ref(1);
 const pageSize = 6;
 
 const suratModalOpen = ref(false);
+const editingSurat = ref(null);
+const deletingSurat = ref(null);
 const selectedSurat = ref(null);
 const selectedIds = ref([]);
 
@@ -87,12 +90,16 @@ const detailRows = computed(() => {
     if (!selectedSurat.value) return [];
 
     const surat = selectedSurat.value;
+    const pimpinan = surat.pimpinanId
+        ? dashboard.pimpinan.find((item) => item.id === surat.pimpinanId)?.nama
+        : null;
 
     return [
         { label: 'Jenis', value: surat.jenis === 'masuk' ? 'Surat Masuk' : 'Surat Keluar' },
         { label: 'Nomor', value: surat.nomor },
         { label: 'Perihal', value: surat.perihal },
         { label: 'Asal / Tujuan', value: surat.pihak },
+        { label: 'Pimpinan terkait', value: pimpinan ?? '—' },
         { label: 'Tanggal', value: formatLongDate(surat.tanggal) },
         { label: 'Status', value: surat.status },
     ];
@@ -128,12 +135,32 @@ function handleDownload(surat) {
     showToast('Surat diunduh sebagai file teks.');
 }
 
+function openCreate() {
+    editingSurat.value = null;
+    suratModalOpen.value = true;
+}
+
+function openEdit(surat) {
+    editingSurat.value = surat;
+    suratModalOpen.value = true;
+}
+
+function confirmDelete() {
+    if (!deletingSurat.value) return;
+
+    deleteSurat(deletingSurat.value.id);
+    deletingSurat.value = null;
+    selectedSurat.value = null;
+    showToast('Surat berhasil dihapus.', 'success');
+}
+
 function onSaved(item) {
     tab.value = item.jenis;
     query.value = '';
     status.value = 'semua';
     currentPage.value = 1;
     suratModalOpen.value = false;
+    editingSurat.value = null;
 }
 </script>
 
@@ -151,7 +178,7 @@ function onSaved(item) {
                 <i class="ph-light ph-download-simple text-base" aria-hidden="true"></i>
                 Ekspor CSV
             </button>
-            <button class="btn-primary group" @click="suratModalOpen = true">
+            <button class="btn-primary group" @click="openCreate">
                 <span>Buat Surat</span>
                 <span class="btn-trail" aria-hidden="true">
                     <i class="ph-light ph-plus text-sm"></i>
@@ -299,6 +326,22 @@ function onSaved(item) {
                                     >
                                         <i class="ph-light ph-download-simple" aria-hidden="true"></i>
                                     </button>
+                                    <button
+                                        class="icon-btn-sm"
+                                        :aria-label="`Ubah surat ${surat.nomor}`"
+                                        title="Ubah surat"
+                                        @click="openEdit(surat)"
+                                    >
+                                        <i class="ph-light ph-pencil-simple" aria-hidden="true"></i>
+                                    </button>
+                                    <button
+                                        class="icon-btn-sm hover:text-danger"
+                                        :aria-label="`Hapus surat ${surat.nomor}`"
+                                        title="Hapus surat"
+                                        @click="deletingSurat = surat"
+                                    >
+                                        <i class="ph-light ph-trash" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -334,8 +377,18 @@ function onSaved(item) {
 
     <SuratFormModal
         :open="suratModalOpen"
-        @close="suratModalOpen = false"
+        :item="editingSurat"
+        @close="suratModalOpen = false; editingSurat = null"
         @saved="onSaved"
+    />
+
+    <ConfirmModal
+        :open="!!deletingSurat"
+        title="Hapus surat?"
+        :message="`Surat “${deletingSurat?.perihal ?? ''}” akan dihapus dari arsip.`"
+        confirm-label="Hapus surat"
+        @close="deletingSurat = null"
+        @confirm="confirmDelete"
     />
 
     <DetailModal

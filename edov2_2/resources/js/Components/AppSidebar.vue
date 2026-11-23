@@ -15,15 +15,27 @@ const logo = '/images/edo.png';
 const currentPath = computed(() => (page.url || '/').split('?')[0]);
 
 const links = [
-    { href: '/', label: 'Ringkasan', icon: 'ph-squares-four', route: 'ringkasan' },
-    { href: '/persuratan', label: 'Persuratan', icon: 'ph-envelope-simple', route: 'persuratan' },
-    { href: '/anggota', label: 'Data Anggota', icon: 'ph-users-three', route: 'anggota' },
-    { href: '/pimpinan', label: 'Manajemen Pimpinan', icon: 'ph-identification-card', route: 'pimpinan' },
-    { href: '/kaderisasi', label: 'Kaderisasi', icon: 'ph-graduation-cap', route: 'kaderisasi' },
+    { href: '/dashboard', label: 'Ringkasan', icon: 'ph-squares-four', route: 'ringkasan' },
+    { href: '/dashboard/persuratan', label: 'Persuratan', icon: 'ph-envelope-simple', route: 'persuratan' },
+    { href: '/dashboard/anggota', label: 'Data Anggota', icon: 'ph-users-three', route: 'anggota' },
+    { href: '/dashboard/pimpinan', label: 'Manajemen Pimpinan', icon: 'ph-identification-card', route: 'pimpinan' },
+    { href: '/dashboard/kaderisasi', label: 'Kaderisasi', icon: 'ph-graduation-cap', route: 'kaderisasi' },
+];
+
+const masterLinks = [
+    { href: '/dashboard/jenis-jabatan', label: 'Jenis Jabatan', icon: 'ph-list-dashes' },
+    { href: '/dashboard/alamat', label: 'Alamat', icon: 'ph-tree-structure' },
+];
+
+const serviceLinks = [
+    { href: '/dashboard/impersonate', label: 'Impersonate', icon: 'ph-user-switch' },
+    { href: '/dashboard/sinkronisasi', label: 'Sinkronisasi', icon: 'ph-arrows-clockwise' },
+    { href: '/dashboard/kta', label: 'Kartu Anggota', icon: 'ph-identification-badge' },
 ];
 
 function isActive(href) {
-    return currentPath.value === href;
+    if (href === '/dashboard') return currentPath.value === href;
+    return currentPath.value === href || currentPath.value.startsWith(`${href}/`);
 }
 </script>
 
@@ -63,9 +75,9 @@ function isActive(href) {
                 Utama
             </p>
             <Link
-                href="/"
-                :class="['nav-link', { 'is-active': isActive('/') }]"
-                :aria-current="isActive('/') ? 'page' : undefined"
+                href="/dashboard"
+                :class="['nav-link', { 'is-active': isActive('/dashboard') }]"
+                :aria-current="isActive('/dashboard') ? 'page' : undefined"
                 @click="$emit('close')"
             >
                 <i class="ph-light ph-squares-four text-lg" aria-hidden="true"></i>
@@ -104,6 +116,47 @@ function isActive(href) {
                     {{ totalPimpinan }}
                 </span>
             </Link>
+
+            <p class="px-3 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+                Data Master
+            </p>
+            <Link
+                v-for="link in masterLinks"
+                :key="link.href"
+                :href="link.href"
+                :class="['nav-link', { 'is-active': isActive(link.href) }]"
+                :aria-current="isActive(link.href) ? 'page' : undefined"
+                @click="$emit('close')"
+            >
+                <i :class="['ph-light text-lg', link.icon]" aria-hidden="true"></i>
+                <span>{{ link.label }}</span>
+            </Link>
+
+            <p class="px-3 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+                Layanan
+            </p>
+            <Link
+                v-for="link in serviceLinks"
+                :key="link.href"
+                :href="link.href"
+                :class="['nav-link', { 'is-active': isActive(link.href) }]"
+                :aria-current="isActive(link.href) ? 'page' : undefined"
+                @click="$emit('close')"
+            >
+                <i :class="['ph-light text-lg', link.icon]" aria-hidden="true"></i>
+                <span>{{ link.label }}</span>
+            </Link>
+            <a
+                href="https://wiki.pelajartrenggalek.or.id"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="nav-link"
+                @click="$emit('close')"
+            >
+                <i class="ph-light ph-book-open text-lg" aria-hidden="true"></i>
+                <span>EDOPedia</span>
+                <i class="ph-light ph-arrow-up-right ml-auto text-sm" aria-hidden="true"></i>
+            </a>
         </nav>
 
         <div class="border-t border-line p-3">

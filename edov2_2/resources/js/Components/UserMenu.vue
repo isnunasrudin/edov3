@@ -7,7 +7,8 @@ const open = ref(false);
 const root = ref(null);
 
 const actions = [
-    { icon: 'ph-user', label: 'Profil saya', message: 'Menu Profil masih dalam prototipe.' },
+    { icon: 'ph-house', label: 'Beranda publik', message: 'Membuka beranda publik.', route: '/' },
+    { icon: 'ph-user', label: 'Profil saya', message: 'Membuka profil anggota.', route: '/dashboard/anggota/a1' },
     { icon: 'ph-gear', label: 'Pengaturan', message: 'Menu Pengaturan masih dalam prototipe.' },
     { icon: 'ph-sign-out', label: 'Keluar', message: 'Anda keluar dari sesi demo.', route: '/login', danger: true },
 ];

@@ -143,7 +143,7 @@ function exportOverview() {
             </div>
 
             <Link
-                href="/kaderisasi"
+                href="/dashboard/kaderisasi"
                 class="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:underline"
             >
                 Lihat detail kaderisasi
@@ -159,7 +159,7 @@ function exportOverview() {
                     <h3 class="text-sm font-bold">Surat Terbaru</h3>
                     <p class="text-xs text-muted">5 aktivitas terakhir</p>
                 </div>
-                <Link href="/persuratan" class="text-xs font-bold text-brand hover:underline">
+                <Link href="/dashboard/persuratan" class="text-xs font-bold text-brand hover:underline">
                     Lihat semua
                 </Link>
             </div>

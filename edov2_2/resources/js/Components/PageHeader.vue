@@ -24,6 +24,7 @@ defineProps({
                 <i :class="['ph-light', icon]" aria-hidden="true"></i>
                 {{ eyebrow }}
             </span>
+            <h1 class="sr-only md:hidden">{{ title }}</h1>
             <h2 class="mt-2 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
                 {{ title }}
             </h2>

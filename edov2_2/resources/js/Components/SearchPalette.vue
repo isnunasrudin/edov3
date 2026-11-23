@@ -20,7 +20,7 @@ const results = computed(() => {
     dashboard.surat.forEach((surat) => {
         if (`${surat.nomor} ${surat.perihal} ${surat.pihak}`.toLowerCase().includes(term)) {
             items.push({
-                route: '/persuratan',
+                route: '/dashboard/persuratan',
                 params: { q: surat.perihal, jenis: surat.jenis },
                 icon: 'ph-envelope-simple',
                 type: surat.jenis === 'masuk' ? 'Surat Masuk' : 'Surat Keluar',
@@ -33,7 +33,7 @@ const results = computed(() => {
     dashboard.anggota.forEach((anggota) => {
         if (`${anggota.nama} ${anggota.nia} ${anggota.pac}`.toLowerCase().includes(term)) {
             items.push({
-                route: '/anggota',
+                route: '/dashboard/anggota',
                 params: { q: anggota.nama },
                 icon: 'ph-user',
                 type: `Anggota · ${anggota.org}`,
@@ -46,7 +46,7 @@ const results = computed(() => {
     dashboard.pimpinan.forEach((pimpinan) => {
         if (`${pimpinan.nama} ${pimpinan.region} ${pimpinan.ketua}`.toLowerCase().includes(term)) {
             items.push({
-                route: '/pimpinan',
+                route: '/dashboard/pimpinan',
                 params: { q: pimpinan.nama },
                 icon: 'ph-identification-card',
                 type: `Pimpinan · ${pimpinan.org}`,
@@ -120,11 +120,13 @@ onBeforeUnmount(() => {
             ref="input"
             v-model="q"
             type="search"
+            role="combobox"
+            aria-autocomplete="list"
             autocomplete="off"
             :placeholder="placeholder"
             class="h-10 w-full rounded-full border border-line/70 bg-elevated/80 pl-9 pr-11 text-sm text-ink placeholder:text-muted transition duration-500 focus:border-brand focus:bg-surface focus:outline-none focus:ring-2 focus:ring-brand/20"
             :aria-expanded="open && hasQuery"
-            aria-controls="search-results"
+            :aria-controls="open && hasQuery ? 'search-results' : undefined"
             @input="open = true"
             @focus="open = hasQuery"
             @keydown.enter="results.length && go(results[0])"

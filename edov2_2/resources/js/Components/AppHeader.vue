@@ -15,15 +15,26 @@ defineEmits(['toggle-sidebar']);
 const page = usePage();
 
 const titles = {
-    '/': 'Ringkasan Organisasi',
-    '/persuratan': 'Persuratan',
-    '/anggota': 'Data Anggota',
-    '/pimpinan': 'Manajemen Pimpinan',
-    '/kaderisasi': 'Kaderisasi',
+    '/dashboard': 'Ringkasan Organisasi',
+    '/dashboard/persuratan': 'Persuratan',
+    '/dashboard/anggota': 'Data Anggota',
+    '/dashboard/pimpinan': 'Manajemen Pimpinan',
+    '/dashboard/kaderisasi': 'Kaderisasi',
+    '/dashboard/impersonate': 'Impersonate',
+    '/dashboard/sinkronisasi': 'Sinkronisasi SISTA & Sirekan',
+    '/dashboard/kta': 'Kartu Tanda Anggota',
+    '/dashboard/jenis-jabatan': 'Jenis Jabatan',
+    '/dashboard/alamat': 'Alamat',
 };
 
 const currentPath = computed(() => (page.url || '/').split('?')[0]);
-const pageTitle = computed(() => titles[currentPath.value] ?? 'EDO v2');
+const pageTitle = computed(() => {
+    if (currentPath.value.startsWith('/dashboard/pimpinan/')) return 'Detail Pimpinan';
+    if (currentPath.value.startsWith('/dashboard/anggota/')) return 'Detail Anggota';
+    if (currentPath.value.startsWith('/dashboard/kaderisasi/')) return 'Detail Kaderisasi';
+
+    return titles[currentPath.value] ?? 'EDO v2';
+});
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import LevelBadge from '@/Components/LevelBadge.vue';
@@ -9,9 +9,9 @@ import StatusBadge from '@/Components/StatusBadge.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import PimpinanFormModal from '@/Components/PimpinanFormModal.vue';
-import DetailModal from '@/Components/DetailModal.vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 import { LEVELS } from '@/data/pimpinan';
-import { dashboard, totalPimpinan } from '@/stores/dashboard';
+import { dashboard, totalPimpinan, deletePimpinan } from '@/stores/dashboard';
 import { downloadCSV } from '@/utils/export';
 import { showToast } from '@/composables/useToast';
 import { formatNumber, readQuery } from '@/utils/format';
@@ -27,7 +27,8 @@ const currentPage = ref(1);
 const pageSize = 8;
 
 const formOpen = ref(false);
-const selected = ref(null);
+const editingPimpinan = ref(null);
+const deletingPimpinan = ref(null);
 const tableRef = ref(null);
 
 watch(
@@ -91,30 +92,6 @@ const showingTo = computed(() =>
     Math.min(currentPage.value * pageSize, filtered.value.length),
 );
 
-function levelLabel(code) {
-    return LEVELS.find((item) => item.code === code)?.label ?? code;
-}
-
-const detailRows = computed(() => {
-    if (!selected.value) return [];
-
-    const item = selected.value;
-
-    return [
-        { label: 'Organisasi', value: item.org },
-        { label: 'Level', value: `${item.level} — ${levelLabel(item.level)}` },
-        { label: 'Wilayah', value: item.region },
-        { label: 'Induk kepengurusan', value: item.parent },
-        { label: 'Ketua', value: item.ketua },
-        { label: 'Sekretaris', value: item.sekretaris },
-        { label: 'Periode', value: item.periode },
-        { label: 'Jumlah pengurus', value: String(item.members) },
-        { label: 'Nomor SK', value: item.sk },
-        { label: 'Status', value: item.status },
-        { label: 'Alamat', value: item.alamat },
-    ];
-});
-
 function toggleLevel(code) {
     level.value = level.value === code ? 'semua' : code;
     currentPage.value = 1;
@@ -123,6 +100,24 @@ function toggleLevel(code) {
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         tableRef.value?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     });
+}
+
+function openCreate() {
+    editingPimpinan.value = null;
+    formOpen.value = true;
+}
+
+function openEdit(item) {
+    editingPimpinan.value = item;
+    formOpen.value = true;
+}
+
+function confirmDelete() {
+    if (!deletingPimpinan.value) return;
+
+    deletePimpinan(deletingPimpinan.value.id);
+    deletingPimpinan.value = null;
+    showToast('Pimpinan beserta periode dan jabatannya berhasil dihapus.', 'success');
 }
 
 function resetFilters() {
@@ -141,6 +136,7 @@ function onSaved() {
     status.value = 'semua';
     currentPage.value = 1;
     formOpen.value = false;
+    editingPimpinan.value = null;
 }
 
 function exportPimpinan() {
@@ -183,7 +179,7 @@ function exportPimpinan() {
                 <i class="ph-light ph-download-simple text-base" aria-hidden="true"></i>
                 Ekspor CSV
             </button>
-            <button class="btn-primary group" @click="formOpen = true">
+            <button class="btn-primary group" @click="openCreate">
                 <span>Tambah Pimpinan</span>
                 <span class="btn-trail" aria-hidden="true">
                     <i class="ph-light ph-plus text-sm"></i>
@@ -309,7 +305,7 @@ function exportPimpinan() {
                             class="transition-colors hover:bg-elevated/60"
                         >
                             <td class="td">
-                                <p class="font-semibold">{{ item.nama }}</p>
+                                <Link :href="`/dashboard/pimpinan/${item.id}`" class="font-semibold hover:text-brand">{{ item.nama }}</Link>
                                 <p class="mt-0.5 text-[11px] text-muted">Induk: {{ item.parent }}</p>
                             </td>
                             <td class="td"><OrgBadge :org="item.org" /></td>
@@ -325,21 +321,29 @@ function exportPimpinan() {
                             <td class="td"><StatusBadge :status="item.status" /></td>
                             <td class="td text-right">
                                 <div class="flex items-center justify-end gap-1">
-                                    <button
+                                    <Link
+                                        :href="`/dashboard/pimpinan/${item.id}`"
                                         class="icon-btn-sm"
                                         :aria-label="`Lihat detail ${item.nama}`"
                                         title="Lihat detail"
-                                        @click="selected = item"
                                     >
                                         <i class="ph-light ph-eye" aria-hidden="true"></i>
-                                    </button>
+                                    </Link>
                                     <button
                                         class="icon-btn-sm"
                                         :aria-label="`Ubah data ${item.nama}`"
                                         title="Ubah data"
-                                        @click="showToast('Form ubah pimpinan belum tersedia pada prototipe.', 'info')"
+                                        @click="openEdit(item)"
                                     >
                                         <i class="ph-light ph-pencil-simple" aria-hidden="true"></i>
+                                    </button>
+                                    <button
+                                        class="icon-btn-sm hover:text-danger"
+                                        :aria-label="`Hapus ${item.nama}`"
+                                        title="Hapus pimpinan"
+                                        @click="deletingPimpinan = item"
+                                    >
+                                        <i class="ph-light ph-trash" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </td>
@@ -376,15 +380,18 @@ function exportPimpinan() {
 
     <PimpinanFormModal
         :open="formOpen"
-        @close="formOpen = false"
+        :item="editingPimpinan"
+        @close="formOpen = false; editingPimpinan = null"
         @saved="onSaved"
     />
 
-    <DetailModal
-        :open="!!selected"
-        :title="selected?.nama ?? 'Detail Pimpinan'"
-        :subtitle="selected ? `${selected.level} · ${selected.org}` : ''"
-        :rows="detailRows"
-        @close="selected = null"
+    <ConfirmModal
+        :open="!!deletingPimpinan"
+        title="Hapus pimpinan?"
+        :message="`“${deletingPimpinan?.nama ?? ''}” beserta periode dan jabatan terkait akan dihapus.`"
+        confirm-label="Hapus pimpinan"
+        @close="deletingPimpinan = null"
+        @confirm="confirmDelete"
     />
+
 </template>

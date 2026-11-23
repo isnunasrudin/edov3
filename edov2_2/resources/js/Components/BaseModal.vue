@@ -12,7 +12,7 @@ const emit = defineEmits(['close']);
 
 const panel = ref(null);
 const titleId = useId();
-const sizes = { md: 'max-w-md', lg: 'max-w-lg' };
+const sizes = { md: 'max-w-md', lg: 'max-w-lg', xl: 'max-w-4xl' };
 const sizeClass = computed(() => sizes[props.size] ?? sizes.lg);
 
 let lastFocused = null;
@@ -28,6 +28,7 @@ watch(
             await nextTick();
 
             const first =
+                panel.value?.querySelector('[data-autofocus]') ??
                 panel.value?.querySelector(
                     'form input:not([type="hidden"]), form select, form textarea',
                 ) ??

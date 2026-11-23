@@ -15,6 +15,21 @@ const styles = {
     'Non-aktif': 'border border-line bg-elevated text-muted',
     Dijadwalkan: 'border border-line bg-elevated text-muted',
     Pendaftaran: 'bg-info-soft text-info',
+    'Menunggu Pelantikan': 'bg-info-soft text-info',
+    'Periode Berakhir': 'bg-danger-soft text-danger',
+    Lengkap: 'bg-success-soft text-success',
+    'Perlu dilengkapi': 'bg-accent-soft text-accent',
+    'Masa Tenggang': 'bg-info-soft text-info',
+    Expired: 'bg-danger-soft text-danger',
+    Duplikat: 'bg-violet-soft text-violet',
+    Beririsan: 'border border-line bg-elevated text-muted',
+    Berakhir: 'border border-line bg-elevated text-muted',
+    Lulus: 'bg-success-soft text-success',
+    Berhenti: 'bg-danger-soft text-danger',
+    Tersinkron: 'bg-success-soft text-success',
+    Berhasil: 'bg-success-soft text-success',
+    Sebagian: 'bg-accent-soft text-accent',
+    Gagal: 'bg-danger-soft text-danger',
 };
 
 const classes = computed(
